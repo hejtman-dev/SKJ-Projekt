@@ -35,7 +35,6 @@
             <aside class="panel auth-card">
                 <div>
                     <h2>Přístup do služby</h2>
-                    <p>Demo účet je připravený po startu aplikace. Registrovat lze i další uživatele.</p>
                 </div>
 
                 <div class="auth-tabs">
@@ -55,7 +54,6 @@
                     <div class="button-row">
                         <button class="btn-primary" type="button" onclick="login()">Přihlásit se</button>
                     </div>
-                    <div class="micro-copy">Demo přihlášení: <strong>admin</strong> / <strong>admin123</strong></div>
                 </div>
 
                 <div id="registerTab" class="auth-form hidden">
@@ -102,24 +100,14 @@
 
                 <div class="stat-stack">
                     <div class="stat-card">
-                        <span>Počet souborů</span>
-                        <strong id="fileCount">0</strong>
-                        <small>Aktuální výsledek podle zvoleného bucketu a filtru.</small>
-                    </div>
-                    <div class="stat-card">
-                        <span>Celková velikost</span>
-                        <strong id="totalSize">0 B</strong>
-                        <small>Součet velikostí aktuálně zobrazených souborů.</small>
-                    </div>
-                    <div class="stat-card">
                         <span>Aktivní bucket</span>
                         <strong id="activeBucketLabel">Žádný</strong>
-                        <small id="activeBucketHint">Vyberte bucket v mapě níže.</small>
+                        <small id="activeBucketHint">Vyberte bucket a pak pracujte se soubory v hlavní ploše.</small>
                     </div>
                     <div class="stat-card">
                         <span>Poslední synchronizace</span>
                         <strong id="lastSync">Ještě neproběhla</strong>
-                        <small>Data se obnovují po uploadu, smazání i změně filtrů.</small>
+                        <small>Jen orientační stav, hlavní práce probíhá v seznamu souborů.</small>
                     </div>
                 </div>
 
@@ -132,22 +120,92 @@
             <main class="panel workspace">
                 <div class="workspace-header">
                     <div>
-                        <h3>Spatial Bucket Atlas</h3>
+                        <h3>Práce se soubory</h3>
                         <p>
-                            Interaktivní mapa bucketů kombinuje storage, přenosy, request billing a živé
-                            přehledy objektů do jednoho detailního pohledu.
+                            Hlavní pracovní plocha je seznam souborů. Vyberte aktivní bucket, nahrajte soubor
+                            a pak pracujte s výsledky níže.
                         </p>
                     </div>
+                    <div class="workspace-priority">
+                        <span class="priority-chip strong">Nejdřív vyberte bucket, pak nahrávejte a pracujte se soubory dole.</span>
+                    </div>
                 </div>
+
+                <section class="drop-zone" id="dropZone" tabindex="0">
+                    <div class="drop-grid">
+                        <div>
+                            <h4 id="dropTitle">Nahrajte soubor do aktivního bucketu</h4>
+                            <p id="dropText">Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.</p>
+                            <small id="dropHint">Maximum 100 MB na soubor, 500 MB na uživatele.</small>
+                        </div>
+                        <div class="button-row">
+                            <button class="btn-primary" type="button">Nahrát soubor</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput">
+                </section>
+
+                <section class="table-shell">
+                    <div class="table-header">
+                        <div>
+                            <h4>Seznam souborů</h4>
+                            <p id="resultsLabel">Načítám data...</p>
+                            <small class="table-guidance">Pracovní výstup. Tady hned uvidíte obsah aktivního bucketu.</small>
+                        </div>
+                        <div class="table-header-side">
+                            <div class="table-summary">
+                                <div class="table-summary-chip">
+                                    <span>Soubory</span>
+                                    <strong id="fileCount">0</strong>
+                                </div>
+                                <div class="table-summary-chip">
+                                    <span>Velikost</span>
+                                    <strong id="totalSize">0 B</strong>
+                                </div>
+                            </div>
+                            <div class="status-line" id="tableStatus">Připraveno</div>
+                        </div>
+                    </div>
+                    <div id="filesList"></div>
+                </section>
+
+                <section class="toolbar">
+                    <div class="field field-wide">
+                        <label for="bucketName">Nový bucket</label>
+                        <input type="text" id="bucketName" placeholder="např. documents" autocomplete="off">
+                    </div>
+                    <div class="field field-compact">
+                        <label>&nbsp;</label>
+                        <button class="btn-secondary" type="button" id="createBucketButton">Vytvořit bucket</button>
+                    </div>
+                    <div class="field field-wide">
+                        <label for="searchInput">Vyhledat podle názvu</label>
+                        <input type="search" id="searchInput" placeholder="např. report, faktura, image" autocomplete="off">
+                    </div>
+                    <div class="field field-compact">
+                        <label for="sortBy">Řadit podle</label>
+                        <select id="sortBy">
+                            <option value="created_at">Data nahrání</option>
+                            <option value="filename">Názvu</option>
+                            <option value="size">Velikosti</option>
+                        </select>
+                    </div>
+                    <div class="field field-compact">
+                        <label for="sortOrder">Směr</label>
+                        <select id="sortOrder">
+                            <option value="desc">Sestupně</option>
+                            <option value="asc">Vzestupně</option>
+                        </select>
+                    </div>
+                </section>
 
                 <section class="bucket-atlas" id="bucketAtlas">
                     <div class="bucket-atlas-head">
                         <div>
                             <div class="eyebrow eyebrow-subtle">Bucket Atlas</div>
-                            <h4>Datová krajina v reálném čase</h4>
+                            <h4>Přehled bucketů</h4>
                             <p>
-                                Každý bucket je zobrazený jako samostatný datový uzel s billing intenzitou,
-                                storage objemem a aktivitou requestů.
+                                Sekundární přehled pro orientaci v bucketech, limitech a aktivitě.
                             </p>
                         </div>
                         <div class="atlas-summary">
@@ -168,11 +226,11 @@
                             <label for="bucketColorFilter">Filtrovat podle barvy</label>
                             <select id="bucketColorFilter">
                                 <option value="all">Všechny buckety</option>
-                                <option value="teal">Teal</option>
-                                <option value="blue">Blue</option>
-                                <option value="amber">Amber</option>
-                                <option value="violet">Violet</option>
-                                <option value="rose">Rose</option>
+                                <option value="teal">White</option>
+                                <option value="blue">Red</option>
+                                <option value="amber">Yellow</option>
+                                <option value="violet">Azure</option>
+                                <option value="rose">Graphite</option>
                             </select>
                         </div>
                     </div>
@@ -207,61 +265,6 @@
                         </aside>
                     </div>
                 </section>
-
-                <section class="drop-zone" id="dropZone" tabindex="0">
-                    <div class="drop-grid">
-                        <div>
-                            <h4 id="dropTitle">Nahrajte soubor do aktivního bucketu</h4>
-                            <p id="dropText">Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.</p>
-                            <small id="dropHint">Maximum 100 MB na soubor, 500 MB na uživatele.</small>
-                        </div>
-                        <div class="button-row">
-                            <button class="btn-primary" type="button">Nahrát soubor</button>
-                        </div>
-                    </div>
-                    <input type="file" id="fileInput">
-                </section>
-
-                <section class="toolbar">
-                    <div class="field field-wide">
-                        <label for="bucketName">Nový bucket</label>
-                        <input type="text" id="bucketName" placeholder="např. documents" autocomplete="off">
-                    </div>
-                    <div class="field field-compact">
-                        <label>&nbsp;</label>
-                        <button class="btn-secondary" type="button" id="createBucketButton">Vytvořit bucket</button>
-                    </div>
-                    <div class="field field-wide">
-                        <label for="searchInput">Vyhledat podle názvu</label>
-                        <input type="search" id="searchInput" placeholder="např. report, faktura, image" autocomplete="off">
-                    </div>
-                    <div class="field field-compact">
-                        <label for="sortBy">Řadit podle</label>
-                        <select id="sortBy">
-                            <option value="created_at">Data nahrání</option>
-                            <option value="filename">Názvu</option>
-                            <option value="size">Velikosti</option>
-                        </select>
-                    </div>
-                    <div class="field field-compact">
-                        <label for="sortOrder">Směr</label>
-                        <select id="sortOrder">
-                            <option value="desc">Sestupně</option>
-                            <option value="asc">Vzestupně</option>
-                        </select>
-                    </div>
-                </section>
-
-                <section class="table-shell">
-                    <div class="table-header">
-                        <div>
-                            <h4>Seznam souborů</h4>
-                            <p id="resultsLabel">Načítám data...</p>
-                        </div>
-                        <div class="status-line" id="tableStatus">Připraveno</div>
-                    </div>
-                    <div id="filesList"></div>
-                </section>
             </main>
         </section>
     </div>
@@ -272,18 +275,20 @@
         const API_URL = window.location.origin;
         const initialFilters = { search: '', sortBy: 'created_at', sortOrder: 'desc' };
         const INSIGHT_OBJECT_LIMIT = 100;
-        const BUCKET_CANVAS_MIN_WIDTH = 1800;
-        const BUCKET_CANVAS_MIN_HEIGHT = 1200;
+        const BUCKET_CANVAS_MIN_WIDTH = 4000;
+        const BUCKET_CANVAS_MIN_HEIGHT = 4000;
         const BUCKET_CANVAS_COLUMNS = 5;
-        const BUCKET_VIEW_MIN_ZOOM = 0.7;
-        const BUCKET_VIEW_MAX_ZOOM = 1.6;
-        const BUCKET_VIEW_ZOOM_STEP = 0.12;
+        const BUCKET_VIEW_MIN_ZOOM = 0.2;
+        const BUCKET_VIEW_MAX_ZOOM = 1;
+        const BUCKET_VIEW_ZOOM_STEP = 0.03;
+        const BUCKET_VIEW_BUTTON_PIXEL_STEP = 3;
+        const themeColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
         const BUCKET_COLOR_META = {
-            teal: { label: 'Teal', accent: '#1fc8bc', soft: 'rgba(31, 200, 188, 0.22)', panel: 'rgba(31, 200, 188, 0.18)' },
-            blue: { label: 'Blue', accent: '#5f8cff', soft: 'rgba(95, 140, 255, 0.22)', panel: 'rgba(95, 140, 255, 0.18)' },
-            amber: { label: 'Amber', accent: '#ffb84c', soft: 'rgba(255, 184, 76, 0.24)', panel: 'rgba(255, 184, 76, 0.18)' },
-            violet: { label: 'Violet', accent: '#a879ff', soft: 'rgba(168, 121, 255, 0.24)', panel: 'rgba(168, 121, 255, 0.18)' },
-            rose: { label: 'Rose', accent: '#ff7da8', soft: 'rgba(255, 125, 168, 0.24)', panel: 'rgba(255, 125, 168, 0.18)' },
+            teal: { label: 'White', accent: themeColor('--bucket-color-teal-accent'), soft: themeColor('--bucket-color-teal-soft'), panel: themeColor('--bucket-color-teal-panel') },
+            blue: { label: 'Red', accent: themeColor('--bucket-color-blue-accent'), soft: themeColor('--bucket-color-blue-soft'), panel: themeColor('--bucket-color-blue-panel') },
+            amber: { label: 'Yellow', accent: themeColor('--bucket-color-amber-accent'), soft: themeColor('--bucket-color-amber-soft'), panel: themeColor('--bucket-color-amber-panel') },
+            violet: { label: 'Azure', accent: themeColor('--bucket-color-violet-accent'), soft: themeColor('--bucket-color-violet-soft'), panel: themeColor('--bucket-color-violet-panel') },
+            rose: { label: 'Graphite', accent: themeColor('--bucket-color-rose-accent'), soft: themeColor('--bucket-color-rose-soft'), panel: themeColor('--bucket-color-rose-panel') },
         };
 
         let token = localStorage.getItem('token');
@@ -777,24 +782,25 @@
         }
 
         async function loadSingleBucketInsight(bucket) {
-            const [billingResponse, objectsResponse] = await Promise.allSettled([
-                apiFetch(`/buckets/${bucket.id}/billing/`),
+            const objectsResponse = await Promise.allSettled([
                 apiFetch(`/buckets/${bucket.id}/objects/?sort_by=created_at&sort_order=desc&limit=${INSIGHT_OBJECT_LIMIT}`),
             ]);
+            const objects = await settleJsonResult(objectsResponse[0], {
+                files: [],
+                total: 0,
+                summary: { total_size_bytes: 0, total_size_mb: 0 },
+            });
 
-            const billing = await settleJsonResult(billingResponse, {
+            const billingResponse = await Promise.allSettled([
+                apiFetch(`/buckets/${bucket.id}/billing/`),
+            ]);
+            const billing = await settleJsonResult(billingResponse[0], {
                 current_storage_bytes: 0,
                 ingress_bytes: 0,
                 egress_bytes: 0,
                 internal_transfer_bytes: 0,
                 count_write_requests: 0,
                 count_read_requests: 0,
-            });
-
-            const objects = await settleJsonResult(objectsResponse, {
-                files: [],
-                total: 0,
-                summary: { total_size_bytes: 0, total_size_mb: 0 },
             });
 
             const trafficBytes =
@@ -881,10 +887,17 @@
 
         function renderBucketCard(bucket, index) {
             const color = getBucketColorMeta(bucket.color);
-            const storageRatio = Math.min(
-                Number(bucket.billing.current_storage_bytes || 0) / Math.max(Number(bucket.billing.current_storage_bytes || 0), 50 * 1024 * 1024, 1),
-                1
-            );
+            const usedStorageBytes = Number(bucket.billing.current_storage_bytes || 0);
+            const storageLimitBytes = Number(bucket.storage_limit_bytes || 0);
+            const storageRatio = storageLimitBytes > 0
+                ? Math.min(usedStorageBytes / storageLimitBytes, 1)
+                : 0;
+            const visualStorageRatio = usedStorageBytes > 0 && storageLimitBytes > 0
+                ? Math.max(storageRatio, 0.015)
+                : storageRatio;
+            const storagePercentLabel = storageRatio > 0 && storageRatio < 0.01
+                ? '<1%'
+                : `${Math.round(storageRatio * 100)}%`;
             const trafficRatio = Math.min(bucket.requestCount / Math.max(bucket.requestCount, 10, 1), 1);
             const activityTone = bucket.activityScore > 160 ? 'high' : bucket.activityScore > 40 ? 'medium' : 'low';
             const scale = bucket.activityScore > 160 ? 'lg' : bucket.activityScore > 40 ? 'md' : 'sm';
@@ -895,6 +908,7 @@
                 <article
                     class="bucket-node ${scale} ${activityTone} ${bucket.is_locked ? 'locked' : ''} ${isActive ? 'active' : ''}"
                     data-bucket-id="${escapeHtml(bucket.id)}"
+                    draggable="false"
                     style="left:${position.x}px; top:${position.y}px; --bucket-accent:${color.accent}; --bucket-accent-soft:${color.soft};"
                 >
                     <div class="bucket-node-glow"></div>
@@ -906,10 +920,10 @@
                         <span class="bucket-node-chip">${bucket.is_locked ? 'locked' : `${bucket.objects.total} obj`}</span>
                     </div>
                     <div class="bucket-node-core">
-                        <div class="bucket-node-ring" style="--storage-ratio:${storageRatio.toFixed(3)}; --traffic-ratio:${trafficRatio.toFixed(3)};">
+                        <div class="bucket-node-ring" style="--storage-ratio:${visualStorageRatio.toFixed(3)}; --traffic-ratio:${trafficRatio.toFixed(3)};">
                             <div class="bucket-node-ring-inner">
-                                <strong>${formatBytes(bucket.billing.current_storage_bytes || 0)}</strong>
-                                <span>${color.label}</span>
+                                <strong>${storagePercentLabel}</strong>
+                                <span>${formatBytes(usedStorageBytes)} / ${formatBytes(storageLimitBytes)}</span>
                             </div>
                         </div>
                     </div>
@@ -933,11 +947,17 @@
 
         function bindBucketMapInteractions() {
             dom.bucketMap.querySelectorAll('[data-bucket-id]').forEach((node) => {
+                node.addEventListener('dragstart', preventBucketNativeDrag);
+                node.addEventListener('selectstart', preventBucketNativeDrag);
                 node.addEventListener('pointerdown', startBucketDrag);
                 node.addEventListener('pointermove', moveBucketDrag);
                 node.addEventListener('pointerup', finishBucketDrag);
                 node.addEventListener('pointercancel', cancelBucketDrag);
             });
+        }
+
+        function preventBucketNativeDrag(event) {
+            event.preventDefault();
         }
 
         function startBucketDrag(event) {
@@ -947,6 +967,7 @@
                 return;
             }
 
+            event.preventDefault();
             event.stopPropagation();
             const nodeLeft = Number.parseFloat(node.style.left) || 0;
             const nodeTop = Number.parseFloat(node.style.top) || 0;
@@ -1048,6 +1069,7 @@
                 return;
             }
 
+            event.preventDefault();
             bucketPanState = {
                 pointerId: event.pointerId,
                 startPointerX: event.clientX,
@@ -1141,10 +1163,15 @@
                 return;
             }
 
+            const pixelZoomStep = BUCKET_VIEW_BUTTON_PIXEL_STEP / Math.max(BUCKET_CANVAS_MIN_WIDTH, BUCKET_CANVAS_MIN_HEIGHT, 1);
             const rect = dom.bucketMapViewport.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-            const nextZoom = clamp(bucketView.zoom + delta, BUCKET_VIEW_MIN_ZOOM, BUCKET_VIEW_MAX_ZOOM);
+            const nextZoom = clamp(
+                bucketView.zoom + (delta < 0 ? -pixelZoomStep : pixelZoomStep),
+                BUCKET_VIEW_MIN_ZOOM,
+                BUCKET_VIEW_MAX_ZOOM
+            );
 
             zoomBucketMapToPoint(nextZoom, centerX, centerY);
         }
@@ -1233,15 +1260,9 @@
         }
 
         function getBucketCanvasBounds() {
-            const rowCount = Math.max(1, Math.ceil(Math.max(bucketInsights.length, 1) / BUCKET_CANVAS_COLUMNS));
-            const height = Math.max(
-                BUCKET_CANVAS_MIN_HEIGHT,
-                160 + rowCount * (getBucketNodeHeight() + 90)
-            );
-
             return {
                 width: BUCKET_CANVAS_MIN_WIDTH,
-                height,
+                height: BUCKET_CANVAS_MIN_HEIGHT,
             };
         }
 
@@ -1872,9 +1893,10 @@
                 dom.quotaPercent.textContent = `${Math.round(data.usage_percent)} %`;
                 dom.quotaMeta.textContent = `Zbývá ${formatBytes(data.remaining_bytes)} z celkové kvóty.`;
                 dom.quotaBar.style.width = `${Math.min(data.usage_percent, 100)}%`;
+                const theme = getComputedStyle(document.documentElement);
                 dom.quotaBar.style.background = data.usage_percent >= 85
-                    ? 'linear-gradient(90deg, #c2410c 0%, #ea580c 100%)'
-                    : 'linear-gradient(90deg, #0f766e 0%, #14b8a6 100%)';
+                    ? `linear-gradient(90deg, ${theme.getPropertyValue('--quota-bar-warning-start').trim()} 0%, ${theme.getPropertyValue('--quota-bar-warning-end').trim()} 100%)`
+                    : `linear-gradient(90deg, ${theme.getPropertyValue('--quota-bar-safe-start').trim()} 0%, ${theme.getPropertyValue('--quota-bar-safe-end').trim()} 100%)`;
             } catch (error) {
                 if (error.message !== 'unauthorized') {
                     console.error('Error loading quota:', error);

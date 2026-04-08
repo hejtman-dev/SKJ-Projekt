@@ -1,34 +1,211 @@
 :root {
-    --bg: #f1ece5;
-    --bg-deep: #e8ddd1;
-    --surface: rgba(255, 250, 244, 0.86);
-    --surface-soft: rgba(255, 249, 240, 0.7);
-    --surface-strong: #f5ede3;
-    --panel-deep: rgba(27, 31, 44, 0.92);
-    --panel-soft: rgba(32, 41, 57, 0.76);
-    --text: #171d26;
-    --text-soft: #5e6875;
-    --text-faint: #909aa6;
-    --text-inverse: #f4f7fb;
-    --border: rgba(23, 29, 38, 0.08);
-    --border-strong: rgba(23, 29, 38, 0.16);
-    --accent: #0f766e;
-    --accent-strong: #115e59;
-    --accent-bright: #1fc8bc;
-    --accent-soft: rgba(15, 118, 110, 0.12);
-    --ink-blue: #275df2;
-    --ink-blue-soft: rgba(39, 93, 242, 0.16);
-    --sun: #f59e0b;
-    --sun-soft: rgba(245, 158, 11, 0.16);
-    --danger: #c2410c;
-    --danger-soft: rgba(194, 65, 12, 0.14);
-    --shadow-sm: 0 12px 28px rgba(23, 29, 38, 0.08);
-    --shadow-md: 0 28px 64px rgba(23, 29, 38, 0.14);
-    --shadow-lg: 0 34px 90px rgba(14, 19, 30, 0.24);
+    --bg: #1b1814;
+    --bg-deep: #0f0d0a;
+    --surface: rgba(34, 29, 22, 0.9);
+    --surface-soft: rgba(48, 41, 30, 0.72);
+    --surface-strong: #2a241b;
+    --panel-deep: rgba(19, 17, 13, 0.96);
+    --panel-soft: rgba(31, 27, 21, 0.84);
+    --text: #ffffff;
+    --text-soft: rgba(255, 255, 255, 0.84);
+    --text-faint: rgba(255, 255, 255, 0.62);
+    --text-inverse: #ffffff;
+    --border: rgba(244, 196, 72, 0.12);
+    --border-strong: rgba(244, 196, 72, 0.24);
+    --accent: #f4c448;
+    --accent-strong: #d9a928;
+    --accent-bright: #ffd85f;
+    --accent-soft: rgba(244, 196, 72, 0.16);
+    --ink-blue: #3d3527;
+    --ink-blue-soft: rgba(61, 53, 39, 0.34);
+    --sun: #ffcf57;
+    --sun-soft: rgba(255, 207, 87, 0.18);
+    --danger: #f0b63a;
+    --danger-soft: rgba(240, 182, 58, 0.2);
+    --shadow-sm: 0 12px 28px rgba(0, 0, 0, 0.26);
+    --shadow-md: 0 28px 64px rgba(0, 0, 0, 0.34);
+    --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.46);
     --radius-sm: 14px;
     --radius-md: 22px;
     --radius-lg: 32px;
     --radius-pill: 999px;
+    --white: #ffffff;
+    --body-top-glow: rgba(255, 212, 92, 0.2);
+    --body-blue-glow: rgba(244, 196, 72, 0.14);
+    --body-teal-glow: rgba(74, 64, 46, 0.28);
+    --body-base: #15120e;
+    --panel-border-strong: rgba(244, 196, 72, 0.44);
+    --panel-soft-top: rgba(255, 215, 103, 0.18);
+    --panel-soft-bottom: rgba(57, 49, 37, 0.22);
+    --panel-soft-border: rgba(244, 196, 72, 0.2);
+    --eyebrow-bg: rgba(244, 196, 72, 0.14);
+    --eyebrow-subtle-bg: rgba(255, 255, 255, 0.08);
+    --eyebrow-subtle-text: rgba(255, 255, 255, 0.86);
+    --hero-metric-top: rgba(255, 217, 110, 0.2);
+    --hero-metric-bottom: rgba(46, 40, 31, 0.88);
+    --field-border: rgba(244, 196, 72, 0.16);
+    --field-bg: rgba(22, 19, 14, 0.9);
+    --field-text: rgba(255, 255, 255, 0.98);
+    --field-placeholder: rgba(255, 255, 255, 0.46);
+    --focus-border: rgba(255, 207, 87, 0.52);
+    --focus-ring: rgba(244, 196, 72, 0.16);
+    --btn-primary-shadow: rgba(244, 196, 72, 0.28);
+    --btn-primary-hover-end: #ffe07a;
+    --btn-secondary-bg: #1c1812;
+    --btn-ghost-bg: rgba(44, 38, 29, 0.9);
+    --btn-ghost-bg-hover: rgba(63, 54, 41, 0.96);
+    --danger-border: rgba(240, 182, 58, 0.26);
+    --danger-bg-hover: rgba(240, 182, 58, 0.18);
+    --workspace-panel-top: rgba(255, 216, 99, 0.08);
+    --workspace-panel-bottom: rgba(255, 255, 255, 0.02);
+    --workspace-panel-base: rgba(18, 16, 12, 0.96);
+    --workspace-panel-border: rgba(244, 196, 72, 0.12);
+    --sidebar-text: rgba(255, 255, 255, 0.8);
+    --quota-top-bg: rgba(244, 196, 72, 0.14);
+    --quota-bottom-bg: rgba(255, 255, 255, 0.04);
+    --quota-base: rgba(23, 20, 15, 0.82);
+    --quota-bar-safe-start: #f4c448;
+    --quota-bar-safe-end: #ffe07a;
+    --quota-bar-warning-start: #746246;
+    --quota-bar-warning-end: #a78a4c;
+    --progress-track: rgba(255, 255, 255, 0.12);
+    --stat-bg-top: rgba(255, 213, 92, 0.1);
+    --stat-bg-bottom: rgba(255, 255, 255, 0.03);
+    --stat-label: rgba(255, 255, 255, 0.68);
+    --stat-note: rgba(255, 255, 255, 0.76);
+    --workspace-copy: rgba(255, 255, 255, 0.82);
+    --priority-chip-bg: rgba(255, 255, 255, 0.08);
+    --priority-chip-border: rgba(244, 196, 72, 0.12);
+    --priority-chip-text: rgba(255, 255, 255, 0.78);
+    --priority-chip-strong-bg: rgba(244, 196, 72, 0.18);
+    --priority-chip-strong-text: rgba(255, 255, 255, 0.98);
+    --atlas-top-glow: rgba(255, 214, 97, 0.18);
+    --atlas-bottom-glow: rgba(68, 57, 41, 0.3);
+    --atlas-mid: #211c15;
+    --atlas-bottom: #14110d;
+    --atlas-copy: rgba(255, 255, 255, 0.74);
+    --atlas-filter-text: rgba(255, 255, 255, 0.8);
+    --atlas-filter-bg: rgba(255, 255, 255, 0.08);
+    --atlas-filter-border: rgba(244, 196, 72, 0.12);
+    --atlas-filter-value: rgba(255, 255, 255, 0.98);
+    --atlas-summary-bg: rgba(255, 214, 97, 0.08);
+    --atlas-summary-border: rgba(244, 196, 72, 0.12);
+    --atlas-summary-label: rgba(255, 255, 255, 0.72);
+    --map-shell-top: rgba(255, 214, 97, 0.04);
+    --map-shell-bottom: rgba(255, 255, 255, 0.01);
+    --map-shell-center: rgba(255, 214, 97, 0.04);
+    --map-shell-border: rgba(244, 196, 72, 0.08);
+    --map-toolbar-text: rgba(255, 255, 255, 0.74);
+    --map-button-bg: rgba(47, 40, 30, 0.88);
+    --map-button-text: rgba(255, 255, 255, 0.96);
+    --map-button-border: rgba(244, 196, 72, 0.14);
+    --map-button-hover: rgba(255, 214, 97, 0.14);
+    --map-viewport-center: rgba(255, 214, 97, 0.04);
+    --map-viewport-base: rgba(8, 7, 5, 0.26);
+    --orbit-border: rgba(244, 196, 72, 0.1);
+    --map-empty-copy: rgba(255, 255, 255, 0.86);
+    --bucket-node-top: rgba(255, 219, 118, 0.14);
+    --bucket-node-bottom: rgba(255, 255, 255, 0.04);
+    --bucket-node-base: rgba(20, 17, 13, 0.76);
+    --bucket-node-border: rgba(244, 196, 72, 0.14);
+    --bucket-node-shadow: rgba(0, 0, 0, 0.42);
+    --bucket-node-hover-border: rgba(255, 214, 97, 0.28);
+    --bucket-node-drag-shadow: rgba(0, 0, 0, 0.52);
+    --bucket-node-drag-ring: rgba(244, 196, 72, 0.2);
+    --bucket-meta-label: rgba(255, 255, 255, 0.68);
+    --bucket-chip-bg: rgba(255, 255, 255, 0.08);
+    --bucket-chip-border: rgba(244, 196, 72, 0.12);
+    --bucket-chip-text: rgba(255, 255, 255, 0.88);
+    --bucket-ring-center: rgba(255, 255, 255, 0.12);
+    --bucket-ring-empty: rgba(255, 255, 255, 0);
+    --bucket-ring-accent: rgba(244, 196, 72, 0.5);
+    --bucket-ring-rest: rgba(255, 255, 255, 0.08);
+    --bucket-ring-dash: rgba(244, 196, 72, 0.14);
+    --bucket-ring-inner: rgba(11, 10, 7, 0.8);
+    --bucket-ring-copy: rgba(255, 255, 255, 0.76);
+    --bucket-detail-top: rgba(255, 214, 97, 0.08);
+    --bucket-detail-bottom: rgba(255, 255, 255, 0.03);
+    --bucket-detail-base: rgba(16, 14, 10, 0.74);
+    --bucket-detail-copy: rgba(255, 255, 255, 0.82);
+    --bucket-card-border: rgba(244, 196, 72, 0.1);
+    --bucket-card-bg: rgba(255, 255, 255, 0.05);
+    --bucket-card-small-copy: rgba(255, 255, 255, 0.76);
+    --bucket-panel-top-default: rgba(244, 196, 72, 0.12);
+    --bucket-panel-bottom-default: rgba(255, 255, 255, 0.04);
+    --bucket-tag-bg: rgba(255, 255, 255, 0.08);
+    --bucket-tag-border: rgba(244, 196, 72, 0.1);
+    --bucket-tag-text: rgba(255, 255, 255, 0.96);
+    --bucket-tag-success: rgba(244, 196, 72, 0.18);
+    --bucket-tag-danger: rgba(68, 57, 41, 0.38);
+    --bucket-profile-copy: rgba(255, 255, 255, 0.84);
+    --bucket-profile-meter: rgba(255, 255, 255, 0.08);
+    --bucket-profile-warning: rgba(255, 207, 87, 0.14);
+    --bucket-profile-critical: rgba(68, 57, 41, 0.38);
+    --tone-storage-top: rgba(255, 214, 97, 0.16);
+    --tone-ingress-top: rgba(225, 177, 51, 0.16);
+    --tone-egress-top: rgba(97, 83, 61, 0.22);
+    --tone-internal-top: rgba(52, 45, 35, 0.26);
+    --tone-card-bottom: rgba(255, 255, 255, 0.04);
+    --bucket-meter-bg: rgba(255, 255, 255, 0.05);
+    --bucket-meter-border: rgba(244, 196, 72, 0.1);
+    --bucket-meter-track-bg: rgba(255, 255, 255, 0.12);
+    --fill-read-end: #ffe07a;
+    --fill-write-end: #f4c448;
+    --settings-copy: rgba(255, 255, 255, 0.8);
+    --settings-field-bg: rgba(17, 15, 11, 0.6);
+    --preview-shell-bg: rgba(255, 255, 255, 0.04);
+    --preview-shell-border: rgba(244, 196, 72, 0.1);
+    --preview-copy: rgba(255, 255, 255, 0.76);
+    --drop-border: rgba(244, 196, 72, 0.28);
+    --drop-top: rgba(244, 196, 72, 0.1);
+    --drop-bottom: rgba(255, 255, 255, 0.04);
+    --drop-base: rgba(18, 16, 12, 0.86);
+    --drop-hover-shadow: rgba(244, 196, 72, 0.1);
+    --drop-drag-shadow: rgba(244, 196, 72, 0.16);
+    --drop-blocked-border: rgba(97, 83, 61, 0.34);
+    --drop-blocked-top: rgba(97, 83, 61, 0.18);
+    --table-border-strong: rgba(244, 196, 72, 0.1);
+    --table-top: rgba(20, 17, 13, 0.96);
+    --table-bottom: rgba(16, 14, 11, 0.98);
+    --table-header-top: rgba(255, 214, 97, 0.06);
+    --table-header-bottom: rgba(255, 255, 255, 0.02);
+    --table-copy: rgba(255, 255, 255, 0.84);
+    --table-guidance-copy: rgba(255, 255, 255, 0.68);
+    --table-summary-bg: rgba(255, 214, 97, 0.08);
+    --table-summary-border: rgba(244, 196, 72, 0.1);
+    --table-summary-label: rgba(255, 255, 255, 0.7);
+    --table-row-border: rgba(244, 196, 72, 0.06);
+    --table-head-copy: rgba(255, 255, 255, 0.68);
+    --table-head-bg: rgba(255, 255, 255, 0.03);
+    --table-row-hover: rgba(244, 196, 72, 0.08);
+    --file-meta-copy: rgba(255, 255, 255, 0.76);
+    --file-code-border: rgba(244, 196, 72, 0.12);
+    --file-code-bg: rgba(255, 255, 255, 0.08);
+    --file-code-text: rgba(255, 255, 255, 0.96);
+    --file-badge-bg: rgba(244, 196, 72, 0.16);
+    --file-badge-text: rgba(255, 255, 255, 0.96);
+    --empty-copy: rgba(255, 255, 255, 0.78);
+    --empty-bg: rgba(255, 255, 255, 0.02);
+    --toast-text: #ffffff;
+    --toast-shadow: rgba(0, 0, 0, 0.32);
+    --toast-success: #b88b1e;
+    --toast-error: #53422a;
+    --toast-info: #d4a72b;
+    --bucket-color-teal-accent: #f5f5f4;
+    --bucket-color-teal-soft: rgba(245, 245, 244, 0.26);
+    --bucket-color-teal-panel: rgba(245, 245, 244, 0.16);
+    --bucket-color-blue-accent: #ef4444;
+    --bucket-color-blue-soft: rgba(239, 68, 68, 0.26);
+    --bucket-color-blue-panel: rgba(239, 68, 68, 0.16);
+    --bucket-color-amber-accent: #facc15;
+    --bucket-color-amber-soft: rgba(250, 204, 21, 0.26);
+    --bucket-color-amber-panel: rgba(250, 204, 21, 0.16);
+    --bucket-color-violet-accent: #22d3ee;
+    --bucket-color-violet-soft: rgba(34, 211, 238, 0.26);
+    --bucket-color-violet-panel: rgba(34, 211, 238, 0.16);
+    --bucket-color-rose-accent: #6b7280;
+    --bucket-color-rose-soft: rgba(107, 114, 128, 0.3);
+    --bucket-color-rose-panel: rgba(107, 114, 128, 0.18);
 }
 
 *,
@@ -50,10 +227,10 @@ body {
     color: var(--text);
     font: 15px/1.6 "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
     background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 28%),
-        radial-gradient(circle at 85% 18%, rgba(39, 93, 242, 0.12), transparent 18%),
-        radial-gradient(circle at 12% 80%, rgba(15, 118, 110, 0.13), transparent 24%),
-        linear-gradient(160deg, #f5f1ea 0%, var(--bg) 38%, var(--bg-deep) 100%);
+        radial-gradient(circle at top left, var(--body-top-glow), transparent 28%),
+        radial-gradient(circle at 85% 18%, var(--body-blue-glow), transparent 18%),
+        radial-gradient(circle at 12% 80%, var(--body-teal-glow), transparent 24%),
+        linear-gradient(160deg, var(--body-base) 0%, var(--bg) 38%, var(--bg-deep) 100%);
 }
 
 button,
@@ -88,18 +265,21 @@ select {
 
 .panel {
     background: var(--surface);
-    border: 1px solid rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--panel-border-strong);
     box-shadow: var(--shadow-md);
 }
 
 .panel-soft {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 249, 240, 0.18));
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: linear-gradient(180deg, var(--panel-soft-top), var(--panel-soft-bottom));
+    border: 1px solid var(--panel-soft-border);
     box-shadow: var(--shadow-lg);
 }
 
 .hero-card {
     padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .eyebrow {
@@ -108,24 +288,25 @@ select {
     gap: 8px;
     padding: 7px 14px;
     border-radius: var(--radius-pill);
-    background: rgba(15, 118, 110, 0.11);
+    background: var(--eyebrow-bg);
     color: var(--accent-strong);
     font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    width: fit-content;
 }
 
 .eyebrow-subtle {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(244, 247, 251, 0.76);
+    background: var(--eyebrow-subtle-bg);
+    color: var(--eyebrow-subtle-text);
 }
 
 .hero h1 {
     margin-top: 20px;
-    max-width: 12ch;
-    font-size: clamp(2.5rem, 4vw, 4.3rem);
-    line-height: 0.92;
+    max-width: 90%;
+    font-size: clamp(2.5rem, 3vw, 4.3rem);
+    line-height: 1.2;
     letter-spacing: -0.06em;
 }
 
@@ -146,7 +327,7 @@ select {
 .hero-metric {
     padding: 18px;
     border-radius: var(--radius-md);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 238, 229, 0.86));
+    background: linear-gradient(180deg, var(--hero-metric-top), var(--hero-metric-bottom));
     border: 1px solid var(--border);
 }
 
@@ -167,9 +348,12 @@ select {
 
 .auth-card {
     padding: 28px;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 18px;
     align-content: start;
+    justify-content: space-around;
+
 }
 
 .auth-card h2 {
@@ -203,7 +387,7 @@ select {
 
 .auth-tab.active {
     background: var(--text);
-    color: #fff;
+    color: var(--bg);
 }
 
 .auth-form {
@@ -229,25 +413,25 @@ select {
 .toolbar select {
     width: 100%;
     padding: 14px 15px;
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--field-border);
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--text);
+    background: var(--field-bg);
+    color: var(--field-text);
     transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
     appearance: none;
 }
 
 .field input::placeholder,
 .toolbar input::placeholder {
-    color: var(--text-faint);
+    color: var(--field-placeholder);
 }
 
 .field input:focus,
 .toolbar input:focus,
 .toolbar select:focus {
     outline: none;
-    border-color: rgba(15, 118, 110, 0.42);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    border-color: var(--focus-border);
+    box-shadow: 0 0 0 4px var(--focus-ring);
     transform: translateY(-1px);
 }
 
@@ -291,41 +475,42 @@ button:disabled {
 
 .btn-primary {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-bright) 100%);
-    color: #fff;
-    box-shadow: 0 10px 18px rgba(15, 118, 110, 0.22);
+    color: var(--bg);
+    box-shadow: 0 10px 18px var(--btn-primary-shadow);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--accent-strong) 0%, #11b7aa 100%);
+    background: linear-gradient(135deg, var(--accent-strong) 0%, var(--btn-primary-hover-end) 100%);
 }
 
 .btn-secondary {
     background: var(--text);
-    color: #fff;
+    color: var(--bg);
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #0f1823;
+    background: var(--btn-secondary-bg);
+    color: var(--text);
 }
 
 .btn-ghost {
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--btn-ghost-bg);
     color: var(--text);
     border: 1px solid var(--border-strong);
 }
 
 .btn-ghost:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--btn-ghost-bg-hover);
 }
 
 .btn-danger {
     background: var(--danger-soft);
     color: var(--danger);
-    border: 1px solid rgba(194, 65, 12, 0.2);
+    border: 1px solid var(--danger-border);
 }
 
 .btn-danger:hover:not(:disabled) {
-    background: rgba(194, 65, 12, 0.18);
+    background: var(--danger-bg-hover);
 }
 
 .micro-copy {
@@ -342,6 +527,18 @@ button:disabled {
     padding: 26px;
 }
 
+.workspace > section {
+    margin: 10px 0px;
+}
+
+.sidebar.panel,
+.workspace.panel {
+    background:
+        linear-gradient(180deg, var(--workspace-panel-top), var(--workspace-panel-bottom)),
+        var(--workspace-panel-base);
+    border: 1px solid var(--workspace-panel-border);
+}
+
 .sidebar {
     display: grid;
     gap: 18px;
@@ -355,11 +552,11 @@ button:disabled {
     place-items: center;
     border-radius: 16px;
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-bright) 100%);
-    color: #fff;
+    color: var(--bg);
     font-size: 13px;
     font-weight: 900;
     letter-spacing: -0.04em;
-    box-shadow: 0 12px 24px rgba(15, 118, 110, 0.22);
+    box-shadow: 0 12px 24px var(--btn-primary-shadow);
 }
 
 .sidebar h2 {
@@ -369,16 +566,16 @@ button:disabled {
 }
 
 .sidebar p {
-    color: var(--text-soft);
+    color: var(--sidebar-text);
 }
 
 .quota-panel {
     padding: 18px;
     border-radius: var(--radius-md);
     background:
-        linear-gradient(180deg, rgba(15, 118, 110, 0.1), rgba(255, 255, 255, 0.78)),
-        var(--surface-soft);
-    border: 1px solid rgba(15, 118, 110, 0.16);
+        linear-gradient(180deg, var(--quota-top-bg), var(--quota-bottom-bg)),
+        var(--quota-base);
+    border: 1px solid var(--workspace-panel-border);
 }
 
 .quota-top {
@@ -391,7 +588,7 @@ button:disabled {
 
 .quota-top span,
 .quota-meta {
-    color: var(--text-soft);
+    color: var(--sidebar-text);
     font-size: 13px;
 }
 
@@ -399,6 +596,7 @@ button:disabled {
     display: block;
     font-size: 1.35rem;
     letter-spacing: -0.04em;
+    color: var(--text-inverse);
 }
 
 .progress-bar,
@@ -407,7 +605,7 @@ button:disabled {
     height: 10px;
     overflow: hidden;
     border-radius: var(--radius-pill);
-    background: rgba(23, 29, 38, 0.08);
+    background: var(--progress-track);
 }
 
 .progress-fill,
@@ -434,15 +632,15 @@ button:disabled {
 .stat-card {
     padding: 15px 16px;
     border-radius: var(--radius-md);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(246, 239, 231, 0.9));
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
+    background: linear-gradient(180deg, var(--stat-bg-top), var(--stat-bg-bottom));
+    border: 1px solid var(--workspace-panel-border);
+    box-shadow: none;
 }
 
 .stat-card span {
     display: block;
     margin-bottom: 8px;
-    color: var(--text-faint);
+    color: var(--stat-label);
     font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
@@ -453,18 +651,20 @@ button:disabled {
     display: block;
     font-size: 1.35rem;
     letter-spacing: -0.04em;
+    color: var(--text-inverse);
 }
 
 .stat-card small {
     display: block;
     margin-top: 8px;
-    color: var(--text-soft);
+    color: var(--stat-note);
     font-size: 12px;
 }
 
 .workspace {
     display: grid;
     gap: 18px;
+    width: 60vw;
 }
 
 .workspace-header {
@@ -481,41 +681,68 @@ button:disabled {
 }
 
 .workspace-header p {
-    max-width: 60ch;
-    color: var(--text-soft);
+    max-width: 58ch;
+    color: var(--workspace-copy);
+}
+
+.workspace-priority {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-self: center;
+    justify-content: flex-end;
+}
+
+.priority-chip {
+    padding: 8px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--priority-chip-bg);
+    border: 1px solid var(--priority-chip-border);
+    color: var(--priority-chip-text);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    cursor: default;
+}
+
+.priority-chip.strong {
+    background: var(--priority-chip-strong-bg);
+    color: var(--priority-chip-strong-text);
 }
 
 .bucket-atlas {
     position: relative;
     overflow: hidden;
-    padding: 24px;
+    padding: 22px;
     border-radius: var(--radius-lg);
     background:
-        radial-gradient(circle at top right, rgba(39, 93, 242, 0.22), transparent 26%),
-        radial-gradient(circle at bottom left, rgba(31, 200, 188, 0.18), transparent 30%),
-        linear-gradient(145deg, var(--panel-deep) 0%, #232d3d 46%, #161c28 100%);
+        radial-gradient(circle at top right, var(--atlas-top-glow), transparent 24%),
+        radial-gradient(circle at bottom left, var(--atlas-bottom-glow), transparent 28%),
+        linear-gradient(145deg, var(--panel-deep) 0%, var(--atlas-mid) 46%, var(--atlas-bottom) 100%);
     color: var(--text-inverse);
     box-shadow: var(--shadow-lg);
+    opacity: 0.97;
 }
 
 .bucket-atlas-head {
     display: flex;
     justify-content: space-between;
     gap: 16px;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 22px;
 }
 
 .bucket-atlas-head h4 {
-    margin-top: 14px;
-    margin-bottom: 10px;
-    font-size: 1.75rem;
+    margin-top: 10px;
+    margin-bottom: 8px;
+    font-size: 1.45rem;
     letter-spacing: -0.05em;
 }
 
 .bucket-atlas-head p {
-    max-width: 54ch;
-    color: rgba(244, 247, 251, 0.74);
+    max-width: 42ch;
+    color: var(--atlas-copy);
 }
 
 .atlas-summary {
@@ -528,36 +755,44 @@ button:disabled {
 .atlas-filter {
     display: grid;
     gap: 8px;
-    align-self: end;
+    align-self: center;
 }
 
 .atlas-filter label {
-    color: rgba(244, 247, 251, 0.68);
+    color: var(--atlas-filter-text);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+
 }
 
 .atlas-filter select {
     min-width: 160px;
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(244, 247, 251, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--bg);
+    color: var(--atlas-filter-value);
+    border: 1px solid var(--atlas-filter-border);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding: 5px 34px 5px 10px;
+    border-radius: 16px;
 }
 
 .atlas-summary-card {
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    background: var(--atlas-summary-bg);
+    border: 1px solid var(--atlas-summary-border);
+    box-shadow: none;
 }
 
 .atlas-summary-card span {
     display: block;
     margin-bottom: 6px;
-    color: rgba(244, 247, 251, 0.6);
+    color: var(--atlas-summary-label);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
@@ -565,26 +800,34 @@ button:disabled {
 }
 
 .atlas-summary-card strong {
-    font-size: 1.18rem;
+    font-size: 1.05rem;
     letter-spacing: -0.04em;
 }
 
 .bucket-atlas-grid {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "map"
+        "detail";
     gap: 18px;
     align-items: stretch;
 }
 
 .bucket-map-shell {
+    grid-area: map;
     position: relative;
-    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    min-height: 400px;
     overflow: hidden;
     border-radius: 28px;
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.03), transparent 60%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+        linear-gradient(180deg, var(--map-shell-top), var(--map-shell-bottom)),
+        radial-gradient(circle at center, var(--map-shell-center), transparent 60%);
+    border: 1px solid var(--map-shell-border);
 }
 
 .bucket-map-toolbar {
@@ -593,7 +836,7 @@ button:disabled {
     align-items: center;
     gap: 12px;
     padding: 16px 18px 0;
-    color: rgba(244, 247, 251, 0.72);
+    color: var(--map-toolbar-text);
     font-size: 12px;
 }
 
@@ -606,13 +849,13 @@ button:disabled {
 .bucket-map-button {
     min-width: 42px;
     padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(244, 247, 251, 0.92);
-    border-color: rgba(255, 255, 255, 0.14);
+    background: var(--map-button-bg);
+    color: var(--map-button-text);
+    border-color: var(--map-button-border);
 }
 
 .bucket-map-button:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.14);
+    background: var(--map-button-hover);
 }
 
 .bucket-map-zoom {
@@ -621,15 +864,18 @@ button:disabled {
 
 .bucket-map-viewport {
     position: relative;
-    min-height: 560px;
-    height: 560px;
+    flex: 1;
+    min-height: 0;
+    height: auto;
     margin: 14px 18px 18px;
     overflow: hidden;
     border-radius: 24px;
     background:
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.03), transparent 58%),
-        rgba(10, 15, 24, 0.18);
+        radial-gradient(circle at center, var(--map-viewport-center), transparent 58%),
+        var(--map-viewport-base);
     cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .bucket-map-viewport.panning {
@@ -652,7 +898,7 @@ button:disabled {
 .orbit {
     position: absolute;
     border-radius: 50%;
-    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border: 1px dashed var(--orbit-border);
 }
 
 .orbit-a {
@@ -679,7 +925,7 @@ button:disabled {
     gap: 8px;
     padding: 24px;
     text-align: center;
-    color: rgba(244, 247, 251, 0.78);
+    color: var(--map-empty-copy);
 }
 
 .bucket-map-empty {
@@ -705,31 +951,39 @@ button:disabled {
     padding: 18px;
     border-radius: 28px;
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)),
-        rgba(14, 20, 33, 0.54);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 26px 50px rgba(4, 8, 16, 0.32);
+        linear-gradient(180deg, var(--bucket-node-top), var(--bucket-node-bottom)),
+        var(--bucket-node-base);
+    border: 1px solid var(--bucket-node-border);
+    box-shadow: 0 26px 50px var(--bucket-node-shadow);
     cursor: grab;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
     touch-action: none;
     transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
+.bucket-node * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
 .bucket-node:hover {
     transform: translateY(-4px) scale(1.015);
-    border-color: rgba(255, 255, 255, 0.24);
+    border-color: var(--bucket-node-hover-border);
 }
 
 .bucket-node.dragging {
     cursor: grabbing;
     z-index: 4;
     transform: scale(1.02);
-    box-shadow: 0 34px 70px rgba(4, 8, 16, 0.44), 0 0 0 1px rgba(31, 200, 188, 0.18);
+    box-shadow: 0 34px 70px var(--bucket-node-drag-shadow), 0 0 0 1px var(--bucket-node-drag-ring);
 }
 
 .bucket-node.active {
-    border-color: color-mix(in srgb, var(--bucket-accent, #1fc8bc) 65%, white);
-    box-shadow: 0 30px 62px rgba(4, 8, 16, 0.36), 0 0 0 1px color-mix(in srgb, var(--bucket-accent, #1fc8bc) 24%, transparent);
+    border-color: color-mix(in srgb, var(--bucket-accent, var(--accent-bright)) 65%, white);
+    box-shadow: 0 30px 62px var(--bucket-node-shadow), 0 0 0 1px color-mix(in srgb, var(--bucket-accent, var(--accent-bright)) 24%, transparent);
 }
 
 .bucket-node.sm {
@@ -755,15 +1009,15 @@ button:disabled {
 }
 
 .bucket-node.low .bucket-node-glow {
-    background: var(--bucket-accent-soft, rgba(31, 200, 188, 0.18));
+    background: var(--bucket-accent-soft, var(--bucket-tag-success));
 }
 
 .bucket-node.medium .bucket-node-glow {
-    background: var(--bucket-accent-soft, rgba(39, 93, 242, 0.22));
+    background: var(--bucket-accent-soft, var(--ink-blue-soft));
 }
 
 .bucket-node.high .bucket-node-glow {
-    background: var(--bucket-accent-soft, rgba(245, 158, 11, 0.24));
+    background: var(--bucket-accent-soft, var(--sun-soft));
 }
 
 .bucket-node.locked {
@@ -791,7 +1045,7 @@ button:disabled {
 .bucket-detail-card span,
 .bucket-meter-head span {
     display: block;
-    color: rgba(244, 247, 251, 0.58);
+    color: var(--bucket-meta-label);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
@@ -809,10 +1063,10 @@ button:disabled {
 .bucket-detail-badge {
     padding: 8px 11px;
     border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: rgba(244, 247, 251, 0.82);
-    width: 100%;
+    background: var(--bucket-chip-bg);
+    border: 1px solid var(--bucket-chip-border);
+    color: var(--bucket-chip-text);
+    width: fit-content;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
@@ -833,13 +1087,13 @@ button:disabled {
     padding: 12px;
     border-radius: 50%;
     background:
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%),
+        radial-gradient(circle at center, var(--bucket-ring-center), var(--bucket-ring-empty) 60%),
         conic-gradient(
             from 200deg,
-            rgba(31, 200, 188, 0.08) 0deg,
-            rgba(31, 200, 188, 0.08) calc(260deg * var(--storage-ratio)),
-            rgba(255, 255, 255, 0.08) calc(260deg * var(--storage-ratio)),
-            rgba(255, 255, 255, 0.08) 360deg
+            var(--bucket-ring-accent) 0deg,
+            var(--bucket-ring-accent) calc(260deg * var(--storage-ratio)),
+            var(--bucket-ring-rest) calc(260deg * var(--storage-ratio)),
+            var(--bucket-ring-rest) 360deg
         );
 }
 
@@ -848,7 +1102,7 @@ button:disabled {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border: 1px dashed var(--bucket-ring-dash);
     opacity: calc(0.4 + var(--traffic-ratio) * 0.6);
 }
 
@@ -861,7 +1115,7 @@ button:disabled {
     place-content: center;
     gap: 4px;
     border-radius: 50%;
-    background: rgba(7, 12, 23, 0.7);
+    background: var(--bucket-ring-inner);
     text-align: center;
 }
 
@@ -871,7 +1125,7 @@ button:disabled {
 }
 
 .bucket-node-ring-inner span {
-    color: rgba(244, 247, 251, 0.62);
+    color: var(--bucket-ring-copy);
     font-size: 11px;
 }
 
@@ -889,17 +1143,19 @@ button:disabled {
 }
 
 .bucket-detail {
+    grid-area: detail;
     padding: 22px;
-    min-height: 520px;
+    height: auto;
+    min-height: 0;
     color: var(--text-inverse);
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
-        rgba(12, 18, 31, 0.56);
+        linear-gradient(180deg, var(--bucket-detail-top), var(--bucket-detail-bottom)),
+        var(--bucket-detail-base);
 }
 
 .bucket-detail-head p {
     margin-top: 8px;
-    color: rgba(244, 247, 251, 0.72);
+    color: var(--bucket-detail-copy);
     max-width: 32ch;
 }
 
@@ -913,8 +1169,8 @@ button:disabled {
 .bucket-detail-card {
     padding: 16px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bucket-card-border);
+    background: var(--bucket-card-bg);
 }
 
 .bucket-detail-card strong {
@@ -926,7 +1182,7 @@ button:disabled {
 }
 
 .bucket-detail-card small {
-    color: rgba(244, 247, 251, 0.68);
+    color: var(--bucket-card-small-copy);
 }
 
 .bucket-profile-shell,
@@ -934,8 +1190,8 @@ button:disabled {
     margin-top: 18px;
     padding: 16px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(180deg, var(--bucket-panel, rgba(31, 200, 188, 0.12)), rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--bucket-card-border);
+    background: linear-gradient(180deg, var(--bucket-panel, var(--bucket-panel-top-default)), var(--bucket-panel-bottom-default));
 }
 
 .bucket-profile-head {
@@ -954,9 +1210,9 @@ button:disabled {
 .bucket-tag {
     padding: 7px 10px;
     border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(244, 247, 251, 0.92);
+    background: var(--bucket-tag-bg);
+    border: 1px solid var(--bucket-tag-border);
+    color: var(--bucket-tag-text);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
@@ -964,47 +1220,47 @@ button:disabled {
 }
 
 .bucket-tag.success {
-    background: rgba(31, 200, 188, 0.16);
+    background: var(--bucket-tag-success);
 }
 
 .bucket-tag.danger {
-    background: rgba(194, 65, 12, 0.16);
+    background: var(--bucket-tag-danger);
 }
 
 .bucket-profile-shell p {
     margin-top: 12px;
-    color: rgba(244, 247, 251, 0.76);
+    color: var(--bucket-profile-copy);
 }
 
 .bucket-profile-meter {
     margin-top: 14px;
     padding: 14px 16px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bucket-profile-meter);
 }
 
 .bucket-profile-meter.warning {
-    background: rgba(245, 158, 11, 0.12);
+    background: var(--bucket-profile-warning);
 }
 
 .bucket-profile-meter.critical {
-    background: rgba(194, 65, 12, 0.16);
+    background: var(--bucket-profile-critical);
 }
 
 .tone-storage {
-    background: linear-gradient(180deg, rgba(31, 200, 188, 0.16), rgba(255, 255, 255, 0.04));
+    background: linear-gradient(180deg, var(--tone-storage-top), var(--tone-card-bottom));
 }
 
 .tone-ingress {
-    background: linear-gradient(180deg, rgba(39, 93, 242, 0.16), rgba(255, 255, 255, 0.04));
+    background: linear-gradient(180deg, var(--tone-ingress-top), var(--tone-card-bottom));
 }
 
 .tone-egress {
-    background: linear-gradient(180deg, rgba(245, 158, 11, 0.16), rgba(255, 255, 255, 0.04));
+    background: linear-gradient(180deg, var(--tone-egress-top), var(--tone-card-bottom));
 }
 
 .tone-internal {
-    background: linear-gradient(180deg, rgba(140, 92, 255, 0.14), rgba(255, 255, 255, 0.04));
+    background: linear-gradient(180deg, var(--tone-internal-top), var(--tone-card-bottom));
 }
 
 .bucket-meter-row {
@@ -1016,8 +1272,8 @@ button:disabled {
 .bucket-meter {
     padding: 14px 16px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bucket-meter-bg);
+    border: 1px solid var(--bucket-meter-border);
 }
 
 .bucket-meter-head strong {
@@ -1026,19 +1282,19 @@ button:disabled {
 
 .bucket-meter-track {
     margin-top: 10px;
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bucket-meter-track-bg);
 }
 
 .fill-read {
-    background: linear-gradient(90deg, var(--ink-blue) 0%, #77a2ff 100%);
+    background: linear-gradient(90deg, var(--ink-blue) 0%, var(--fill-read-end) 100%);
 }
 
 .fill-write {
-    background: linear-gradient(90deg, var(--sun) 0%, #ffcf73 100%);
+    background: linear-gradient(90deg, var(--sun) 0%, var(--fill-write-end) 100%);
 }
 
 .fill-usage {
-    background: linear-gradient(90deg, var(--bucket-accent, #1fc8bc) 0%, color-mix(in srgb, var(--bucket-accent, #1fc8bc) 54%, white) 100%);
+    background: linear-gradient(90deg, var(--bucket-accent, var(--accent-bright)) 0%, color-mix(in srgb, var(--bucket-accent, var(--accent-bright)) 54%, white) 100%);
 }
 
 .bucket-settings-grid {
@@ -1060,7 +1316,7 @@ button:disabled {
 .bucket-settings-field span,
 .bucket-settings-toggle span,
 .bucket-settings-note {
-    color: rgba(244, 247, 251, 0.72);
+    color: var(--settings-copy);
     font-size: 12px;
 }
 
@@ -1069,9 +1325,9 @@ button:disabled {
 .bucket-settings-field textarea {
     width: 100%;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(12, 18, 31, 0.42);
-    color: rgba(244, 247, 251, 0.96);
+    border: 1px solid var(--field-border);
+    background: var(--settings-field-bg);
+    color: var(--field-text);
     padding: 12px 14px;
 }
 
@@ -1108,8 +1364,8 @@ button:disabled {
     margin-top: 18px;
     padding: 16px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--preview-shell-bg);
+    border: 1px solid var(--preview-shell-border);
 }
 
 .bucket-preview-head h6 {
@@ -1118,7 +1374,7 @@ button:disabled {
 }
 
 .bucket-preview-head span {
-    color: rgba(244, 247, 251, 0.66);
+    color: var(--preview-copy);
     font-size: 12px;
 }
 
@@ -1134,7 +1390,7 @@ button:disabled {
     gap: 12px;
     padding: 12px 14px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--preview-shell-bg);
 }
 
 .bucket-preview-item strong {
@@ -1145,7 +1401,7 @@ button:disabled {
 .bucket-preview-item span,
 .bucket-preview-item em,
 .bucket-preview-empty span {
-    color: rgba(244, 247, 251, 0.66);
+    color: var(--preview-copy);
     font-size: 12px;
 }
 
@@ -1165,10 +1421,10 @@ button:disabled {
     overflow: hidden;
     padding: 28px;
     border-radius: var(--radius-md);
-    border: 1px dashed rgba(15, 118, 110, 0.35);
+    border: 1px dashed var(--drop-border);
     background:
-        linear-gradient(135deg, rgba(15, 118, 110, 0.05), rgba(255, 255, 255, 0.92)),
-        var(--surface);
+        linear-gradient(135deg, var(--drop-top), var(--drop-bottom)),
+        var(--drop-base);
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -1176,12 +1432,12 @@ button:disabled {
 .drop-zone:hover {
     transform: translateY(-1px);
     border-color: var(--accent);
-    box-shadow: 0 14px 28px rgba(15, 118, 110, 0.08);
+    box-shadow: 0 14px 28px var(--drop-hover-shadow);
 }
 
 .drop-zone.dragover {
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    box-shadow: 0 0 0 4px var(--drop-drag-shadow);
 }
 
 .drop-zone.loading {
@@ -1190,8 +1446,8 @@ button:disabled {
 }
 
 .drop-zone.blocked {
-    border-color: rgba(194, 65, 12, 0.32);
-    background: linear-gradient(135deg, rgba(194, 65, 12, 0.08), rgba(255, 255, 255, 0.92)), var(--surface);
+    border-color: var(--drop-blocked-border);
+    background: linear-gradient(135deg, var(--drop-blocked-top), var(--drop-bottom)), var(--drop-base);
 }
 
 .drop-grid {
@@ -1209,7 +1465,7 @@ button:disabled {
 
 .drop-grid p,
 .drop-grid small {
-    color: var(--text-soft);
+    color: var(--table-copy);
 }
 
 #fileInput {
@@ -1233,26 +1489,78 @@ button:disabled {
 
 .table-shell {
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid var(--table-border-strong);
     border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.92);
+    background: linear-gradient(180deg, var(--table-top), var(--table-bottom));
+    box-shadow: var(--shadow-lg);
 }
 
 .table-header {
     padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(249, 245, 238, 0.9), rgba(255, 255, 255, 0.88));
+    border-bottom: 1px solid var(--table-border-strong);
+    background: linear-gradient(180deg, var(--table-header-top), var(--table-header-bottom));
 }
 
 .table-header h4 {
-    font-size: 1.05rem;
+    font-size: 1.16rem;
     letter-spacing: -0.03em;
+    color: var(--text-inverse);
 }
 
 .table-header p,
 .status-line {
-    color: var(--text-soft);
+    color: var(--table-copy);
     font-size: 14px;
+}
+
+.table-guidance {
+    display: block;
+    margin-top: 6px;
+    color: var(--table-guidance-copy);
+    font-size: 12px;
+}
+
+.table-header-side {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+}
+
+.table-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.table-summary-chip {
+    min-width: 116px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: var(--table-summary-bg);
+    border: 1px solid var(--table-summary-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.table-summary-chip span {
+    display: block;
+    color: var(--table-summary-label);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    height: max-content;
+}
+
+.table-summary-chip strong {
+    display: block;
+    color: var(--text-inverse);
+    font-size: 1.02rem;
+    letter-spacing: -0.03em;
+    padding: 3px;
+    margin-left: 5px;
 }
 
 .file-table {
@@ -1265,20 +1573,20 @@ button:disabled {
     padding: 16px 20px;
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid rgba(23, 29, 38, 0.06);
+    border-bottom: 1px solid var(--table-row-border);
 }
 
 .file-table th {
-    color: var(--text-faint);
+    color: var(--table-head-copy);
     font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: #fcfbf8;
+    background: var(--table-head-bg);
 }
 
 .file-table tbody tr:hover {
-    background: rgba(15, 118, 110, 0.03);
+    background: var(--table-row-hover);
 }
 
 .file-table tr:last-child td {
@@ -1290,10 +1598,11 @@ button:disabled {
     font-size: 15px;
     font-weight: 800;
     word-break: break-word;
+    color: var(--text-inverse);
 }
 
 .file-meta {
-    color: var(--text-soft);
+    color: var(--file-meta-copy);
     font-size: 13px;
 }
 
@@ -1302,8 +1611,9 @@ button:disabled {
     margin-top: 2px;
     padding: 2px 6px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: rgba(244, 239, 231, 0.92);
+    border: 1px solid var(--file-code-border);
+    background: var(--file-code-bg);
+    color: var(--file-code-text);
     font-family: Consolas, Monaco, monospace;
     font-size: 11px;
 }
@@ -1313,8 +1623,8 @@ button:disabled {
     align-items: center;
     padding: 6px 10px;
     border-radius: var(--radius-pill);
-    background: var(--accent-soft);
-    color: var(--accent-strong);
+    background: var(--file-badge-bg);
+    color: var(--file-badge-text);
     font-size: 12px;
     font-weight: 800;
 }
@@ -1323,18 +1633,20 @@ button:disabled {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    min-width: 350px;
 }
 
 .empty-state {
     padding: 56px 24px;
     text-align: center;
-    color: var(--text-soft);
+    color: var(--empty-copy);
+    background: var(--empty-bg);
 }
 
 .empty-state strong {
     display: block;
     margin-bottom: 10px;
-    color: var(--text);
+    color: var(--text-inverse);
     font-size: 1.12rem;
     letter-spacing: -0.03em;
 }
@@ -1357,21 +1669,21 @@ button:disabled {
     max-width: 360px;
     padding: 14px 16px;
     border-radius: 16px;
-    color: #fff;
-    box-shadow: 0 18px 36px rgba(23, 29, 38, 0.22);
+    color: var(--toast-text);
+    box-shadow: 0 18px 36px var(--toast-shadow);
     animation: toastIn 0.22s ease-out;
 }
 
 .toast.success {
-    background: #166534;
+    background: var(--toast-success);
 }
 
 .toast.error {
-    background: #9a3412;
+    background: var(--toast-error);
 }
 
 .toast.info {
-    background: #0f766e;
+    background: var(--toast-info);
 }
 
 @keyframes toastIn {
@@ -1385,19 +1697,19 @@ button:disabled {
     }
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 980px) {
     .app-shell {
-        grid-template-columns: 1fr;
-    }
-
-    .bucket-atlas-grid {
         grid-template-columns: 1fr;
     }
 
     .bucket-map-shell,
     .bucket-map-viewport {
         min-height: 500px;
-        /* todo */
+        width: 100%;
+    }
+
+    .bucket-map-shell {
+        height: auto;
     }
 }
 
@@ -1415,6 +1727,15 @@ button:disabled {
 
     .toolbar .field-wide:first-child {
         grid-column: 1 / -1;
+    }
+
+    .workspace-priority,
+    .table-summary {
+        justify-content: flex-start;
+    }
+
+    .table-header-side {
+        justify-items: start;
     }
 }
 
@@ -1453,8 +1774,18 @@ button:disabled {
         align-items: flex-start;
     }
 
+    .workspace-priority,
+    .table-summary {
+        width: 100%;
+    }
+
+    .table-header-side {
+        width: 100%;
+    }
+
     .bucket-map-shell {
         min-height: 0;
+        height: auto;
     }
 
     .bucket-map-toolbar {
