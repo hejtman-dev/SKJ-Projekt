@@ -35,12 +35,6 @@ def get_db() -> Session:
     finally:
         db.close()
 
-
-def init_db():
-    """Initialize database tables."""
-    Base.metadata.create_all(bind=engine)
-
-
 def get_storage_dir() -> Path:
     """Get or create storage directory."""
     storage_dir = settings.resolved_storage_dir

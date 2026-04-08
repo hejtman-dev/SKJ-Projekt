@@ -7,25 +7,24 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 try:
-    from .database import init_db, get_storage_dir, SessionLocal
-    from .models import User
+    from .database import get_storage_dir, SessionLocal
+    from .models import Bucket, User
     from .auth import hash_password
-    from .routers import auth, files
+    from .routers import auth, buckets, files
     from .schemas import ErrorResponse, HealthResponse
     from .settings import settings
 except ImportError:
-    from database import init_db, get_storage_dir, SessionLocal
-    from models import User
+    from database import get_storage_dir, SessionLocal
+    from models import Bucket, User
     from auth import hash_password
-    from routers import auth, files
+    from routers import auth, buckets, files
     from schemas import ErrorResponse, HealthResponse
     from settings import settings
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    """Initialize database, storage and demo user on startup."""
-    init_db()
+    """Initialize storage and ensure the demo user exists after migrations are applied."""
     get_storage_dir()
 
     db = SessionLocal()
@@ -40,6 +39,33 @@ async def lifespan(_: FastAPI):
             )
             db.add(demo_user)
             db.commit()
+            db.refresh(demo_user)
+            db.add(
+                Bucket(
+                    user_id=demo_user.id,
+                    name="default",
+                    storage_limit_bytes=demo_user.storage_quota_bytes,
+                    color="teal",
+                    is_locked=False,
+                )
+            )
+            db.commit()
+        else:
+            existing_bucket = db.query(Bucket).filter(
+                Bucket.user_id == existing_user.id,
+                Bucket.name == "default",
+            ).first()
+            if not existing_bucket:
+                db.add(
+                    Bucket(
+                        user_id=existing_user.id,
+                        name="default",
+                        storage_limit_bytes=existing_user.storage_quota_bytes,
+                        color="teal",
+                        is_locked=False,
+                    )
+                )
+                db.commit()
     finally:
         db.close()
 
@@ -63,7 +89,9 @@ app.add_middleware(
 
 # Include routers BEFORE static mount
 app.include_router(auth.router)
+app.include_router(buckets.router)
 app.include_router(files.router)
+app.include_router(files.objects_router)
 
 
 @app.get("/health", tags=["health"], response_model=HealthResponse)

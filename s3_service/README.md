@@ -10,6 +10,12 @@ pip install -r requirements.txt
 
 ## Spuštění
 
+Před startem aplikace vždy aplikujte migrace:
+
+```bash
+alembic upgrade head
+```
+
 ### Vývojový server
 
 ```bash
@@ -35,6 +41,10 @@ Po startu aplikace se automaticky vytvoří demo uživatel:
 - perzistentní metadata přes SQLAlchemy ORM a SQLite
 - JWT autentizace a registrace uživatelů
 - drag-and-drop upload souborů
+- buckety pro organizaci objektů
+- advanced billing pro storage, ingress, egress a internal transfer
+- billing za API requesty (read/write counters po bucketu)
+- soft delete ochrana proti nechtěnému smazání
 - živý quota panel s procenty a zbývajícím místem
 - vyhledávání a řazení souborů podle názvu, data a velikosti
 - izolace dat mezi uživateli
@@ -62,17 +72,66 @@ curl -X POST http://localhost:8000/auth/register \
 ### Upload souboru
 
 ```bash
-curl -X POST http://localhost:8000/files/upload \
+curl -X POST http://localhost:8000/objects/upload \
+  -F "bucket_id=<BUCKET_ID>" \
   -F "file=@/path/to/file.txt" \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+Endpoint `/files/upload` zůstává jako kompatibilní alias.
+
+Interní provoz lze simulovat hlavičkou:
+
+```bash
+-H "X-Internal-Source: true"
+```
+
+### Vytvoření bucketu
+
+```bash
+curl -X POST http://localhost:8000/buckets/ \
+  -F "name=documents" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+### Výpis objektů v bucketu
+
+```bash
+curl "http://localhost:8000/buckets/<BUCKET_ID>/objects/?sort_by=filename&sort_order=asc" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Ve výchozím stavu vrací jen objekty, které nejsou soft-deleted.
+
+### Billing bucketu
+
+```bash
+curl "http://localhost:8000/buckets/<BUCKET_ID>/billing/" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Billing snapshot nově obsahuje i:
+
+- `count_write_requests`
+- `count_read_requests`
+
 ### Výpis souborů se search/sort
 
 ```bash
-curl "http://localhost:8000/files/?search=report&sort_by=filename&sort_order=asc" \
+curl "http://localhost:8000/objects/?search=report&sort_by=filename&sort_order=asc" \
   -H "Authorization: Bearer <TOKEN>"
 ```
+
+Endpoint `/files/` zůstává jako kompatibilní alias.
+
+### Soft delete objektu
+
+```bash
+curl -X DELETE http://localhost:8000/objects/<OBJECT_ID> \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Objekt se v databázi jen označí jako smazaný a přestane se zobrazovat v běžných výpisech.
 
 Příklad odpovědi:
 
@@ -127,6 +186,8 @@ Pydantic modely pokrývají:
 - login request
 - odpovědi s tokenem a uživatelem
 - upload metadata
+- buckety a listování obsahu bucketu
+- billing snapshot bucketu
 - seznam souborů včetně summary
 - query parametry pro search/sort/limit
 - quota response
@@ -161,5 +222,9 @@ s3_service/
 
 - soubory se fyzicky ukládají do `storage/{user_id}/{file_id}`
 - metadata se ukládají do SQLite databáze `storage.db`
+- schéma databáze se mění přes Alembic migrace, ne přes mazání DB
+- metadata listy se v advanced billing neúčtují, počítá se upload/download objektu
+- request billing se počítá jen pro úspěšné bucket-aware object endpointy
+- soft-deleted objekty zůstávají fyzicky uložené a dál se počítají do storage billingu
 - UI je čisté statické HTML/CSS/JS bez dalšího frameworku
 - lokální dokumentace ve Swaggeru odpovídá Pydantic modelům

@@ -27,7 +27,7 @@
                     </div>
                     <div class="hero-metric">
                         <span>Rozhraní</span>
-                        <strong>Search, sort, quota</strong>
+                        <strong>Buckets, billing, search</strong>
                     </div>
                 </div>
             </article>
@@ -104,12 +104,17 @@
                     <div class="stat-card">
                         <span>Počet souborů</span>
                         <strong id="fileCount">0</strong>
-                        <small>Aktuální výsledek podle zvoleného filtru.</small>
+                        <small>Aktuální výsledek podle zvoleného bucketu a filtru.</small>
                     </div>
                     <div class="stat-card">
                         <span>Celková velikost</span>
                         <strong id="totalSize">0 B</strong>
                         <small>Součet velikostí aktuálně zobrazených souborů.</small>
+                    </div>
+                    <div class="stat-card">
+                        <span>Aktivní bucket</span>
+                        <strong id="activeBucketLabel">Žádný</strong>
+                        <small id="activeBucketHint">Vyberte bucket v mapě níže.</small>
                     </div>
                     <div class="stat-card">
                         <span>Poslední synchronizace</span>
@@ -127,18 +132,86 @@
             <main class="panel workspace">
                 <div class="workspace-header">
                     <div>
-                        <h3>Správa souborů</h3>
-                        <p>Vyhledávejte, řaďte a sledujte metadata i kvótu bez přepínání mezi různými obrazovkami.</p>
-                    </div>
-                    <div class="workspace-actions">
-                        <button class="btn-ghost" type="button" onclick="document.getElementById('fileInput').click()">Vybrat soubor</button>
+                        <h3>Spatial Bucket Atlas</h3>
+                        <p>
+                            Interaktivní mapa bucketů kombinuje storage, přenosy, request billing a živé
+                            přehledy objektů do jednoho detailního pohledu.
+                        </p>
                     </div>
                 </div>
+
+                <section class="bucket-atlas" id="bucketAtlas">
+                    <div class="bucket-atlas-head">
+                        <div>
+                            <div class="eyebrow eyebrow-subtle">Bucket Atlas</div>
+                            <h4>Datová krajina v reálném čase</h4>
+                            <p>
+                                Každý bucket je zobrazený jako samostatný datový uzel s billing intenzitou,
+                                storage objemem a aktivitou requestů.
+                            </p>
+                        </div>
+                        <div class="atlas-summary">
+                            <div class="atlas-summary-card">
+                                <span>Buckety</span>
+                                <strong id="bucketCount">0</strong>
+                            </div>
+                            <div class="atlas-summary-card">
+                                <span>Souhrnná storage</span>
+                                <strong id="atlasStorage">0 B</strong>
+                            </div>
+                            <div class="atlas-summary-card">
+                                <span>Celková aktivita</span>
+                                <strong id="atlasTraffic">0 req</strong>
+                            </div>
+                        </div>
+                        <div class="atlas-filter">
+                            <label for="bucketColorFilter">Filtrovat podle barvy</label>
+                            <select id="bucketColorFilter">
+                                <option value="all">Všechny buckety</option>
+                                <option value="teal">Teal</option>
+                                <option value="blue">Blue</option>
+                                <option value="amber">Amber</option>
+                                <option value="violet">Violet</option>
+                                <option value="rose">Rose</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bucket-atlas-grid">
+                        <section class="bucket-map-shell" id="bucketMapShell">
+                            <div class="bucket-map-toolbar">
+                                <span id="bucketMapStatus">Tažením za pozadí posunete atlas, kolečkem přiblížíte.</span>
+                                <div class="bucket-map-controls">
+                                    <button class="btn-ghost bucket-map-button" type="button" id="bucketZoomOut" aria-label="Oddálit atlas">-</button>
+                                    <button class="btn-ghost bucket-map-button bucket-map-zoom" type="button" id="bucketZoomReset">100%</button>
+                                    <button class="btn-ghost bucket-map-button" type="button" id="bucketZoomIn" aria-label="Přiblížit atlas">+</button>
+                                </div>
+                            </div>
+                            <div class="bucket-map-viewport" id="bucketMapViewport">
+                                <div class="bucket-map-canvas" id="bucketCanvas">
+                                    <div class="bucket-map-background">
+                                        <div class="orbit orbit-a"></div>
+                                        <div class="orbit orbit-b"></div>
+                                        <div class="orbit orbit-c"></div>
+                                    </div>
+                                    <div class="bucket-map" id="bucketMap"></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <aside class="bucket-detail panel-soft" id="bucketDetail">
+                            <div class="bucket-detail-empty">
+                                <strong>Vyberte bucket</strong>
+                                <span>Po načtení dat se zde zobrazí detail aktivního bucketu.</span>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
 
                 <section class="drop-zone" id="dropZone" tabindex="0">
                     <div class="drop-grid">
                         <div>
-                            <h4 id="dropTitle">Nahrajte soubor jedním tahem</h4>
+                            <h4 id="dropTitle">Nahrajte soubor do aktivního bucketu</h4>
                             <p id="dropText">Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.</p>
                             <small id="dropHint">Maximum 100 MB na soubor, 500 MB na uživatele.</small>
                         </div>
@@ -150,11 +223,19 @@
                 </section>
 
                 <section class="toolbar">
-                    <div class="field">
+                    <div class="field field-wide">
+                        <label for="bucketName">Nový bucket</label>
+                        <input type="text" id="bucketName" placeholder="např. documents" autocomplete="off">
+                    </div>
+                    <div class="field field-compact">
+                        <label>&nbsp;</label>
+                        <button class="btn-secondary" type="button" id="createBucketButton">Vytvořit bucket</button>
+                    </div>
+                    <div class="field field-wide">
                         <label for="searchInput">Vyhledat podle názvu</label>
                         <input type="search" id="searchInput" placeholder="např. report, faktura, image" autocomplete="off">
                     </div>
-                    <div class="field">
+                    <div class="field field-compact">
                         <label for="sortBy">Řadit podle</label>
                         <select id="sortBy">
                             <option value="created_at">Data nahrání</option>
@@ -162,7 +243,7 @@
                             <option value="size">Velikosti</option>
                         </select>
                     </div>
-                    <div class="field">
+                    <div class="field field-compact">
                         <label for="sortOrder">Směr</label>
                         <select id="sortOrder">
                             <option value="desc">Sestupně</option>
@@ -190,10 +271,34 @@
     <script>
         const API_URL = window.location.origin;
         const initialFilters = { search: '', sortBy: 'created_at', sortOrder: 'desc' };
+        const INSIGHT_OBJECT_LIMIT = 100;
+        const BUCKET_CANVAS_MIN_WIDTH = 1800;
+        const BUCKET_CANVAS_MIN_HEIGHT = 1200;
+        const BUCKET_CANVAS_COLUMNS = 5;
+        const BUCKET_VIEW_MIN_ZOOM = 0.7;
+        const BUCKET_VIEW_MAX_ZOOM = 1.6;
+        const BUCKET_VIEW_ZOOM_STEP = 0.12;
+        const BUCKET_COLOR_META = {
+            teal: { label: 'Teal', accent: '#1fc8bc', soft: 'rgba(31, 200, 188, 0.22)', panel: 'rgba(31, 200, 188, 0.18)' },
+            blue: { label: 'Blue', accent: '#5f8cff', soft: 'rgba(95, 140, 255, 0.22)', panel: 'rgba(95, 140, 255, 0.18)' },
+            amber: { label: 'Amber', accent: '#ffb84c', soft: 'rgba(255, 184, 76, 0.24)', panel: 'rgba(255, 184, 76, 0.18)' },
+            violet: { label: 'Violet', accent: '#a879ff', soft: 'rgba(168, 121, 255, 0.24)', panel: 'rgba(168, 121, 255, 0.18)' },
+            rose: { label: 'Rose', accent: '#ff7da8', soft: 'rgba(255, 125, 168, 0.24)', panel: 'rgba(255, 125, 168, 0.18)' },
+        };
+
         let token = localStorage.getItem('token');
         let currentUsername = localStorage.getItem('username');
+        let currentBucketId = localStorage.getItem('bucketId');
+        let bucketColorFilter = localStorage.getItem('bucketColorFilter') || 'all';
         let searchDebounce;
         let currentFilters = { ...initialFilters };
+        let bucketInsights = [];
+        let bucketLayout = loadBucketLayout();
+        let bucketDragState = null;
+        let bucketPanState = null;
+        let bucketView = loadBucketView();
+        let bucketSettingsMode = false;
+        let bucketLimitUnit = 'MB';
 
         const dom = {
             marketingShell: document.getElementById('marketingShell'),
@@ -211,9 +316,13 @@
             quotaBar: document.getElementById('quotaBar'),
             fileCount: document.getElementById('fileCount'),
             totalSize: document.getElementById('totalSize'),
+            activeBucketLabel: document.getElementById('activeBucketLabel'),
+            activeBucketHint: document.getElementById('activeBucketHint'),
             lastSync: document.getElementById('lastSync'),
             resultsLabel: document.getElementById('resultsLabel'),
             tableStatus: document.getElementById('tableStatus'),
+            bucketName: document.getElementById('bucketName'),
+            createBucketButton: document.getElementById('createBucketButton'),
             searchInput: document.getElementById('searchInput'),
             sortBy: document.getElementById('sortBy'),
             sortOrder: document.getElementById('sortOrder'),
@@ -221,6 +330,19 @@
             dropText: document.getElementById('dropText'),
             dropHint: document.getElementById('dropHint'),
             toastStack: document.getElementById('toastStack'),
+            bucketMapShell: document.getElementById('bucketMapShell'),
+            bucketMapViewport: document.getElementById('bucketMapViewport'),
+            bucketCanvas: document.getElementById('bucketCanvas'),
+            bucketMap: document.getElementById('bucketMap'),
+            bucketDetail: document.getElementById('bucketDetail'),
+            bucketCount: document.getElementById('bucketCount'),
+            atlasStorage: document.getElementById('atlasStorage'),
+            atlasTraffic: document.getElementById('atlasTraffic'),
+            bucketMapStatus: document.getElementById('bucketMapStatus'),
+            bucketZoomOut: document.getElementById('bucketZoomOut'),
+            bucketZoomReset: document.getElementById('bucketZoomReset'),
+            bucketZoomIn: document.getElementById('bucketZoomIn'),
+            bucketColorFilter: document.getElementById('bucketColorFilter'),
         };
 
         bindUi();
@@ -247,18 +369,44 @@
                 loadFiles();
             });
 
+            dom.createBucketButton.addEventListener('click', () => createBucket());
+            dom.bucketMapViewport.addEventListener('pointerdown', startBucketPan);
+            dom.bucketMapViewport.addEventListener('pointermove', moveBucketPan);
+            dom.bucketMapViewport.addEventListener('pointerup', finishBucketPan);
+            dom.bucketMapViewport.addEventListener('pointercancel', cancelBucketPan);
+            dom.bucketMapViewport.addEventListener('wheel', handleBucketZoom, { passive: false });
+            dom.bucketZoomOut.addEventListener('click', () => nudgeBucketZoom(-BUCKET_VIEW_ZOOM_STEP));
+            dom.bucketZoomIn.addEventListener('click', () => nudgeBucketZoom(BUCKET_VIEW_ZOOM_STEP));
+            dom.bucketZoomReset.addEventListener('click', () => resetBucketView());
+            dom.bucketColorFilter.value = bucketColorFilter;
+            dom.bucketColorFilter.addEventListener('change', (event) => {
+                bucketColorFilter = event.target.value;
+                localStorage.setItem('bucketColorFilter', bucketColorFilter);
+                ensureCurrentBucketVisible();
+                renderBucketAtlas();
+                loadFiles();
+            });
+
             dom.fileInput.addEventListener('change', (event) => {
                 handleFiles(event.target.files);
                 event.target.value = '';
             });
 
             dom.dropZone.addEventListener('click', (event) => {
+                if (dom.dropZone.classList.contains('blocked')) {
+                    return;
+                }
                 if (event.target.tagName.toLowerCase() !== 'button') {
                     dom.fileInput.click();
                 }
             });
 
-            dom.dropZone.querySelector('button').addEventListener('click', () => dom.fileInput.click());
+            dom.dropZone.querySelector('button').addEventListener('click', () => {
+                if (dom.dropZone.classList.contains('blocked')) {
+                    return;
+                }
+                dom.fileInput.click();
+            });
 
             dom.dropZone.addEventListener('dragover', (event) => {
                 event.preventDefault();
@@ -272,6 +420,9 @@
             dom.dropZone.addEventListener('drop', (event) => {
                 event.preventDefault();
                 dom.dropZone.classList.remove('dragover');
+                if (dom.dropZone.classList.contains('blocked')) {
+                    return;
+                }
                 handleFiles(event.dataTransfer.files);
             });
 
@@ -285,6 +436,15 @@
                 } else {
                     register();
                 }
+            });
+
+            window.addEventListener('resize', () => {
+                if (!bucketInsights.length) {
+                    return;
+                }
+
+                window.clearTimeout(bindUi.resizeDebounce);
+                bindUi.resizeDebounce = window.setTimeout(() => renderBucketAtlas(), 120);
             });
         }
 
@@ -306,17 +466,44 @@
         }
 
         function setDropZoneLoading(isLoading, text = 'Nahrávám soubor...') {
+            const activeBucket = getCurrentBucketInsight();
+            const uploadButton = dom.dropZone.querySelector('button');
+            const isLocked = Boolean(activeBucket?.is_locked);
+            const isAtLimit = activeBucket
+                ? Number(activeBucket.billing.current_storage_bytes || 0) >= Number(activeBucket.storage_limit_bytes || 0)
+                : false;
             dom.dropZone.classList.toggle('loading', isLoading);
-            dom.dropTitle.textContent = isLoading ? text : 'Nahrajte soubor jedním tahem';
+            dom.dropZone.classList.toggle('blocked', !isLoading && (isLocked || isAtLimit));
+            uploadButton.disabled = !isLoading && (isLocked || isAtLimit);
+            dom.dropTitle.textContent = isLoading
+                ? text
+                : isLocked
+                    ? `Bucket ${activeBucket.name} je zamčený`
+                    : isAtLimit
+                        ? `Bucket ${activeBucket.name} je na svém limitu`
+                : activeBucket
+                    ? `Nahrajte soubor do bucketu ${activeBucket.name}`
+                    : 'Nahrajte soubor do aktivního bucketu';
             dom.dropText.textContent = isLoading
-                ? 'Probíhá přenos souboru a zápis metadat do databáze.'
+                ? 'Probíhá přenos souboru, zápis metadat a aktualizace bucket billing přehledu.'
+                : isLocked
+                    ? 'Zamčený bucket je jen pro čtení. Pro další upload ho nejprve odemkněte v nastavení bucketu.'
+                    : isAtLimit
+                        ? 'Bucket dosáhl svého storage limitu. Zvyšte limit nebo odstraňte část dat.'
                 : 'Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.';
             dom.dropHint.textContent = isLoading
                 ? 'Počkejte prosím na dokončení nahrávání.'
-                : 'Maximum 100 MB na soubor, 500 MB na uživatele.';
+                : isLocked
+                    ? 'Upload i mazání obsahu jsou do odemčení bucketu blokované.'
+                    : isAtLimit
+                        ? `Aktuálně využito ${formatBytes(activeBucket.billing.current_storage_bytes || 0)} z limitu ${formatBytes(activeBucket.storage_limit_bytes || 0)}.`
+                : activeBucket
+                    ? `Aktivní bucket: ${activeBucket.name}. Maximum 100 MB na soubor, 500 MB na uživatele.`
+                    : 'Maximum 100 MB na soubor, 500 MB na uživatele.';
         }
 
         function resetUiState() {
+            bucketInsights = [];
             dom.filesList.innerHTML = '';
             dom.quotaHeadline.textContent = '0 B / 500 MB';
             dom.quotaPercent.textContent = '0 %';
@@ -324,14 +511,27 @@
             dom.quotaBar.style.width = '0%';
             dom.fileCount.textContent = '0';
             dom.totalSize.textContent = '0 B';
+            dom.activeBucketLabel.textContent = 'Žádný';
+            dom.activeBucketHint.textContent = 'Vyberte bucket v mapě níže.';
             dom.resultsLabel.textContent = 'Zatím bez načtených dat';
             dom.tableStatus.textContent = 'Připraveno';
             dom.lastSync.textContent = 'Ještě neproběhla';
+            dom.bucketName.value = '';
             dom.searchInput.value = '';
             dom.sortBy.value = initialFilters.sortBy;
             dom.sortOrder.value = initialFilters.sortOrder;
+            dom.bucketCount.textContent = '0';
+            dom.atlasStorage.textContent = '0 B';
+            dom.atlasTraffic.textContent = '0 req';
+            dom.bucketMap.innerHTML = renderBucketMapEmptyState();
+            dom.bucketDetail.innerHTML = renderBucketDetailEmptyState();
+            dom.bucketColorFilter.value = bucketColorFilter;
             currentFilters = { ...initialFilters };
+            bucketDragState = null;
+            bucketPanState = null;
+            bucketSettingsMode = false;
             setDropZoneLoading(false);
+            syncBucketMapViewport();
         }
 
         function showApp() {
@@ -348,8 +548,10 @@
         function logout(showMessage = true) {
             localStorage.removeItem('token');
             localStorage.removeItem('username');
+            localStorage.removeItem('bucketId');
             token = null;
             currentUsername = null;
+            currentBucketId = null;
             resetUiState();
             showMarketing();
 
@@ -476,6 +678,9 @@
 
         async function refreshData() {
             dom.tableStatus.textContent = 'Synchronizuji data...';
+            dom.bucketMap.innerHTML = renderBucketMapLoadingState();
+            dom.bucketDetail.innerHTML = renderBucketDetailLoadingState();
+            await loadBucketInsights();
             await Promise.all([loadFiles(), loadQuota()]);
             dom.lastSync.textContent = new Date().toLocaleTimeString('cs-CZ', {
                 hour: '2-digit',
@@ -487,6 +692,16 @@
 
         async function handleFiles(files) {
             if (!files || files.length === 0) {
+                return;
+            }
+
+            const activeBucket = getCurrentBucketInsight();
+            if (!currentBucketId) {
+                showToast('Nejprve vytvořte nebo vyberte bucket v mapě.', 'error');
+                return;
+            }
+            if (activeBucket?.is_locked) {
+                showToast('Aktivní bucket je zamčený.', 'error');
                 return;
             }
 
@@ -504,9 +719,10 @@
         async function uploadFile(file) {
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('bucket_id', currentBucketId);
 
             try {
-                const response = await apiFetch('/files/upload', {
+                const response = await apiFetch('/objects/upload', {
                     method: 'POST',
                     body: formData,
                 });
@@ -522,6 +738,1007 @@
                 if (error.message !== 'unauthorized') {
                     showToast('Při nahrávání nastala chyba.', 'error');
                 }
+            }
+        }
+
+        async function loadBucketInsights() {
+            const response = await apiFetch('/buckets/');
+
+            if (!response.ok) {
+                bucketInsights = [];
+                currentBucketId = null;
+                localStorage.removeItem('bucketId');
+                renderBucketAtlas();
+                return;
+            }
+
+            const data = await response.json();
+            const buckets = data.buckets || [];
+
+            bucketInsights = await Promise.all(
+                buckets.map(async (bucket) => {
+                    const insight = await loadSingleBucketInsight(bucket);
+                    return insight;
+                })
+            );
+
+            if (bucketInsights.length === 0) {
+                currentBucketId = null;
+                localStorage.removeItem('bucketId');
+            } else if (!bucketInsights.some(bucket => bucket.id === currentBucketId)) {
+                currentBucketId = bucketInsights[0].id;
+                localStorage.setItem('bucketId', currentBucketId);
+            }
+
+            bucketLayout = pruneBucketLayout(bucketInsights.map(bucket => bucket.id));
+
+            renderBucketAtlas();
+            setDropZoneLoading(false);
+        }
+
+        async function loadSingleBucketInsight(bucket) {
+            const [billingResponse, objectsResponse] = await Promise.allSettled([
+                apiFetch(`/buckets/${bucket.id}/billing/`),
+                apiFetch(`/buckets/${bucket.id}/objects/?sort_by=created_at&sort_order=desc&limit=${INSIGHT_OBJECT_LIMIT}`),
+            ]);
+
+            const billing = await settleJsonResult(billingResponse, {
+                current_storage_bytes: 0,
+                ingress_bytes: 0,
+                egress_bytes: 0,
+                internal_transfer_bytes: 0,
+                count_write_requests: 0,
+                count_read_requests: 0,
+            });
+
+            const objects = await settleJsonResult(objectsResponse, {
+                files: [],
+                total: 0,
+                summary: { total_size_bytes: 0, total_size_mb: 0 },
+            });
+
+            const trafficBytes =
+                Number(billing.ingress_bytes || 0) +
+                Number(billing.egress_bytes || 0) +
+                Number(billing.internal_transfer_bytes || 0);
+            const requestCount =
+                Number(billing.count_write_requests || 0) +
+                Number(billing.count_read_requests || 0);
+            const activityScore =
+                Math.max(trafficBytes / (1024 * 1024), 0) +
+                requestCount * 8 +
+                Number(objects.total || 0) * 4;
+
+            return {
+                ...bucket,
+                billing,
+                objects,
+                trafficBytes,
+                requestCount,
+                activityScore,
+            };
+        }
+
+        async function settleJsonResult(result, fallback) {
+            if (result.status !== 'fulfilled') {
+                return fallback;
+            }
+
+            const response = result.value;
+            if (!response.ok) {
+                return fallback;
+            }
+
+            try {
+                return await response.json();
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        function renderBucketAtlas() {
+            ensureCurrentBucketVisible();
+            const visibleBuckets = getVisibleBucketInsights();
+            const totalStorage = visibleBuckets.reduce((sum, bucket) => sum + Number(bucket.billing.current_storage_bytes || 0), 0);
+            const totalRequests = visibleBuckets.reduce((sum, bucket) => sum + Number(bucket.requestCount || 0), 0);
+
+            dom.bucketCount.textContent = String(visibleBuckets.length);
+            dom.atlasStorage.textContent = formatBytes(totalStorage);
+            dom.atlasTraffic.textContent = `${totalRequests} req`;
+
+            dom.bucketMap.innerHTML = visibleBuckets.length
+                ? visibleBuckets.map(renderBucketCard).join('')
+                : renderBucketMapEmptyState();
+
+            syncBucketMapViewport();
+            bindBucketMapInteractions();
+            updateBucketMapStatus();
+            renderBucketDetail();
+        }
+
+        function getVisibleBucketInsights() {
+            if (bucketColorFilter === 'all') {
+                return bucketInsights;
+            }
+
+            return bucketInsights.filter((bucket) => bucket.color === bucketColorFilter);
+        }
+
+        function ensureCurrentBucketVisible() {
+            const visibleBuckets = getVisibleBucketInsights();
+            if (!visibleBuckets.length) {
+                currentBucketId = null;
+                localStorage.removeItem('bucketId');
+                return;
+            }
+
+            if (!visibleBuckets.some((bucket) => bucket.id === currentBucketId)) {
+                currentBucketId = visibleBuckets[0].id;
+                localStorage.setItem('bucketId', currentBucketId);
+                bucketSettingsMode = false;
+            }
+        }
+
+        function renderBucketCard(bucket, index) {
+            const color = getBucketColorMeta(bucket.color);
+            const storageRatio = Math.min(
+                Number(bucket.billing.current_storage_bytes || 0) / Math.max(Number(bucket.billing.current_storage_bytes || 0), 50 * 1024 * 1024, 1),
+                1
+            );
+            const trafficRatio = Math.min(bucket.requestCount / Math.max(bucket.requestCount, 10, 1), 1);
+            const activityTone = bucket.activityScore > 160 ? 'high' : bucket.activityScore > 40 ? 'medium' : 'low';
+            const scale = bucket.activityScore > 160 ? 'lg' : bucket.activityScore > 40 ? 'md' : 'sm';
+            const isActive = bucket.id === currentBucketId;
+            const position = getBucketNodePosition(bucket, index);
+
+            return `
+                <article
+                    class="bucket-node ${scale} ${activityTone} ${bucket.is_locked ? 'locked' : ''} ${isActive ? 'active' : ''}"
+                    data-bucket-id="${escapeHtml(bucket.id)}"
+                    style="left:${position.x}px; top:${position.y}px; --bucket-accent:${color.accent}; --bucket-accent-soft:${color.soft};"
+                >
+                    <div class="bucket-node-glow"></div>
+                    <div class="bucket-node-top">
+                        <div>
+                            <span class="bucket-node-label">Bucket</span>
+                            <h5>${escapeHtml(bucket.name)}</h5>
+                        </div>
+                        <span class="bucket-node-chip">${bucket.is_locked ? 'locked' : `${bucket.objects.total} obj`}</span>
+                    </div>
+                    <div class="bucket-node-core">
+                        <div class="bucket-node-ring" style="--storage-ratio:${storageRatio.toFixed(3)}; --traffic-ratio:${trafficRatio.toFixed(3)};">
+                            <div class="bucket-node-ring-inner">
+                                <strong>${formatBytes(bucket.billing.current_storage_bytes || 0)}</strong>
+                                <span>${color.label}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bucket-node-meta">
+                        <div>
+                            <span>Ingress</span>
+                            <strong>${formatBytes(bucket.billing.ingress_bytes || 0)}</strong>
+                        </div>
+                        <div>
+                            <span>Egress</span>
+                            <strong>${formatBytes(bucket.billing.egress_bytes || 0)}</strong>
+                        </div>
+                        <div>
+                            <span>Limit</span>
+                            <strong>${formatBytes(bucket.storage_limit_bytes || 0)}</strong>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function bindBucketMapInteractions() {
+            dom.bucketMap.querySelectorAll('[data-bucket-id]').forEach((node) => {
+                node.addEventListener('pointerdown', startBucketDrag);
+                node.addEventListener('pointermove', moveBucketDrag);
+                node.addEventListener('pointerup', finishBucketDrag);
+                node.addEventListener('pointercancel', cancelBucketDrag);
+            });
+        }
+
+        function startBucketDrag(event) {
+            const node = event.currentTarget;
+
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                return;
+            }
+
+            event.stopPropagation();
+            const nodeLeft = Number.parseFloat(node.style.left) || 0;
+            const nodeTop = Number.parseFloat(node.style.top) || 0;
+
+            bucketDragState = {
+                bucketId: node.dataset.bucketId,
+                pointerId: event.pointerId,
+                node,
+                startPointerX: event.clientX,
+                startPointerY: event.clientY,
+                startLeft: nodeLeft,
+                startTop: nodeTop,
+                moved: false,
+            };
+
+            node.setPointerCapture(event.pointerId);
+            node.classList.add('dragging');
+        }
+
+        function moveBucketDrag(event) {
+            if (!bucketDragState || bucketDragState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            const deltaX = event.clientX - bucketDragState.startPointerX;
+            const deltaY = event.clientY - bucketDragState.startPointerY;
+            const movedDistance = Math.abs(deltaX) + Math.abs(deltaY);
+
+            if (movedDistance > 6) {
+                bucketDragState.moved = true;
+            }
+
+            if (!bucketDragState.moved) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const layout = clampBucketPosition(
+                bucketDragState.bucketId,
+                bucketDragState.startLeft + deltaX / bucketView.zoom,
+                bucketDragState.startTop + deltaY / bucketView.zoom
+            );
+
+            bucketDragState.node.style.left = `${layout.x}px`;
+            bucketDragState.node.style.top = `${layout.y}px`;
+        }
+
+        function finishBucketDrag(event) {
+            if (!bucketDragState || bucketDragState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            const { bucketId, moved, node } = bucketDragState;
+
+            if (moved) {
+                const left = Number.parseFloat(node.style.left) || 0;
+                const top = Number.parseFloat(node.style.top) || 0;
+                saveBucketNodePosition(bucketId, left, top);
+                updateBucketMapStatus(`Bucket přesunut na ${Math.round(left)} × ${Math.round(top)}.`);
+            } else {
+                setCurrentBucket(bucketId);
+            }
+
+            cleanupBucketDrag(event.pointerId);
+        }
+
+        function cancelBucketDrag(event) {
+            if (!bucketDragState || bucketDragState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            cleanupBucketDrag(event.pointerId);
+            renderBucketAtlas();
+        }
+
+        function cleanupBucketDrag(pointerId) {
+            if (!bucketDragState || bucketDragState.pointerId !== pointerId) {
+                return;
+            }
+
+            try {
+                bucketDragState.node.releasePointerCapture(pointerId);
+            } catch (error) {
+                // Pointer capture may already be released.
+            }
+
+            bucketDragState.node.classList.remove('dragging');
+            bucketDragState = null;
+        }
+
+        function startBucketPan(event) {
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                return;
+            }
+
+            if (event.target.closest('[data-bucket-id]') || event.target.closest('.bucket-map-button')) {
+                return;
+            }
+
+            bucketPanState = {
+                pointerId: event.pointerId,
+                startPointerX: event.clientX,
+                startPointerY: event.clientY,
+                startPanX: bucketView.panX,
+                startPanY: bucketView.panY,
+                moved: false,
+            };
+
+            dom.bucketMapViewport.setPointerCapture(event.pointerId);
+            dom.bucketMapViewport.classList.add('panning');
+        }
+
+        function moveBucketPan(event) {
+            if (!bucketPanState || bucketPanState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            const deltaX = event.clientX - bucketPanState.startPointerX;
+            const deltaY = event.clientY - bucketPanState.startPointerY;
+            const movedDistance = Math.abs(deltaX) + Math.abs(deltaY);
+
+            if (movedDistance > 4) {
+                bucketPanState.moved = true;
+            }
+
+            if (!bucketPanState.moved) {
+                return;
+            }
+
+            event.preventDefault();
+            bucketView.panX = bucketPanState.startPanX + deltaX;
+            bucketView.panY = bucketPanState.startPanY + deltaY;
+            clampBucketView();
+            applyBucketCanvasTransform();
+            updateBucketMapStatus('Atlas posouváte tažením za pozadí.');
+        }
+
+        function finishBucketPan(event) {
+            if (!bucketPanState || bucketPanState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            if (bucketPanState.moved) {
+                persistBucketView();
+            }
+
+            cleanupBucketPan(event.pointerId);
+            updateBucketMapStatus();
+        }
+
+        function cancelBucketPan(event) {
+            if (!bucketPanState || bucketPanState.pointerId !== event.pointerId) {
+                return;
+            }
+
+            cleanupBucketPan(event.pointerId);
+            updateBucketMapStatus();
+        }
+
+        function cleanupBucketPan(pointerId) {
+            if (!bucketPanState || bucketPanState.pointerId !== pointerId) {
+                return;
+            }
+
+            try {
+                dom.bucketMapViewport.releasePointerCapture(pointerId);
+            } catch (error) {
+                // Pointer capture may already be released.
+            }
+
+            dom.bucketMapViewport.classList.remove('panning');
+            bucketPanState = null;
+        }
+
+        function handleBucketZoom(event) {
+            if (window.matchMedia('(max-width: 720px)').matches || !bucketInsights.length) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const delta = event.deltaY < 0 ? BUCKET_VIEW_ZOOM_STEP : -BUCKET_VIEW_ZOOM_STEP;
+            const nextZoom = clamp(bucketView.zoom + delta, BUCKET_VIEW_MIN_ZOOM, BUCKET_VIEW_MAX_ZOOM);
+
+            zoomBucketMapToPoint(nextZoom, event.clientX, event.clientY);
+        }
+
+        function nudgeBucketZoom(delta) {
+            if (window.matchMedia('(max-width: 720px)').matches || !bucketInsights.length) {
+                return;
+            }
+
+            const rect = dom.bucketMapViewport.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const nextZoom = clamp(bucketView.zoom + delta, BUCKET_VIEW_MIN_ZOOM, BUCKET_VIEW_MAX_ZOOM);
+
+            zoomBucketMapToPoint(nextZoom, centerX, centerY);
+        }
+
+        function resetBucketView() {
+            bucketView = { zoom: 1, panX: 0, panY: 0 };
+            clampBucketView();
+            applyBucketCanvasTransform();
+            persistBucketView();
+            updateBucketMapStatus('Atlas byl vrácen do výchozího pohledu.');
+        }
+
+        function zoomBucketMapToPoint(nextZoom, clientX, clientY) {
+            const rect = dom.bucketMapViewport.getBoundingClientRect();
+            const pointX = clientX - rect.left;
+            const pointY = clientY - rect.top;
+            const canvasX = (pointX - bucketView.panX) / bucketView.zoom;
+            const canvasY = (pointY - bucketView.panY) / bucketView.zoom;
+
+            bucketView.zoom = nextZoom;
+            bucketView.panX = pointX - canvasX * nextZoom;
+            bucketView.panY = pointY - canvasY * nextZoom;
+            clampBucketView();
+            applyBucketCanvasTransform();
+            persistBucketView();
+            updateBucketMapStatus(`Přiblížení ${Math.round(bucketView.zoom * 100)} %.`);
+        }
+
+        function getBucketNodePosition(bucket, index) {
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                return { x: 0, y: 0 };
+            }
+
+            const width = getBucketNodeWidth(bucket);
+            const height = getBucketNodeHeight();
+            const bounds = getBucketCanvasBounds();
+            const saved = bucketLayout[bucket.id];
+
+            if (saved) {
+                return clampBucketPosition(
+                    bucket.id,
+                    saved.x * bounds.width,
+                    saved.y * bounds.height,
+                    width,
+                    height
+                );
+            }
+
+            const padding = 80;
+            const columnGap = 46;
+            const rowGap = 54;
+            const columns = BUCKET_CANVAS_COLUMNS;
+            const row = Math.floor(index / columns);
+            const column = index % columns;
+            const usableWidth = Math.max(bounds.width - padding * 2, width * columns);
+            const columnWidth = columns > 1
+                ? Math.max((usableWidth - columnGap * (columns - 1)) / columns, width)
+                : usableWidth;
+            const x = padding + column * (columnWidth + columnGap) + Math.max((columnWidth - width) / 2, 0);
+            const y = padding + row * (height + rowGap);
+
+            return clampBucketPosition(bucket.id, x, y, width, height);
+        }
+
+        function saveBucketNodePosition(bucketId, x, y) {
+            const bounds = getBucketCanvasBounds();
+            const clamped = clampBucketPosition(bucketId, x, y);
+            const nextX = bounds.width <= 0 ? 0 : clamped.x / bounds.width;
+            const nextY = bounds.height <= 0 ? 0 : clamped.y / bounds.height;
+
+            bucketLayout[bucketId] = {
+                x: Number(nextX.toFixed(4)),
+                y: Number(nextY.toFixed(4)),
+            };
+
+            persistBucketLayout();
+        }
+
+        function clampBucketPosition(bucketId, x, y, width = getBucketNodeWidthById(bucketId), height = getBucketNodeHeight()) {
+            const bounds = getBucketCanvasBounds();
+
+            return {
+                x: clamp(x, 0, Math.max(bounds.width - width, 0)),
+                y: clamp(y, 0, Math.max(bounds.height - height, 0)),
+            };
+        }
+
+        function getBucketCanvasBounds() {
+            const rowCount = Math.max(1, Math.ceil(Math.max(bucketInsights.length, 1) / BUCKET_CANVAS_COLUMNS));
+            const height = Math.max(
+                BUCKET_CANVAS_MIN_HEIGHT,
+                160 + rowCount * (getBucketNodeHeight() + 90)
+            );
+
+            return {
+                width: BUCKET_CANVAS_MIN_WIDTH,
+                height,
+            };
+        }
+
+        function getBucketNodeWidth(bucket) {
+            const activityScore = Number(bucket.activityScore || 0);
+
+            if (activityScore > 160) {
+                return 256;
+            }
+
+            if (activityScore > 40) {
+                return 238;
+            }
+
+            return 214;
+        }
+
+        function getBucketNodeWidthById(bucketId) {
+            const bucket = bucketInsights.find(item => item.id === bucketId);
+            return bucket ? getBucketNodeWidth(bucket) : 230;
+        }
+
+        function getBucketNodeHeight() {
+            return 240;
+        }
+
+        function loadBucketLayout() {
+            try {
+                return JSON.parse(localStorage.getItem('bucketAtlasLayout') || '{}');
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function persistBucketLayout() {
+            localStorage.setItem('bucketAtlasLayout', JSON.stringify(bucketLayout));
+        }
+
+        function loadBucketView() {
+            try {
+                const stored = JSON.parse(localStorage.getItem('bucketAtlasView') || '{}');
+                return {
+                    zoom: clamp(Number(stored.zoom) || 1, BUCKET_VIEW_MIN_ZOOM, BUCKET_VIEW_MAX_ZOOM),
+                    panX: Number(stored.panX) || 0,
+                    panY: Number(stored.panY) || 0,
+                };
+            } catch (error) {
+                return { zoom: 1, panX: 0, panY: 0 };
+            }
+        }
+
+        function persistBucketView() {
+            localStorage.setItem('bucketAtlasView', JSON.stringify({
+                zoom: Number(bucketView.zoom.toFixed(3)),
+                panX: Math.round(bucketView.panX),
+                panY: Math.round(bucketView.panY),
+            }));
+        }
+
+        function pruneBucketLayout(activeBucketIds) {
+            const activeIds = new Set(activeBucketIds);
+            const nextLayout = Object.fromEntries(
+                Object.entries(bucketLayout).filter(([bucketId]) => activeIds.has(bucketId))
+            );
+
+            bucketLayout = nextLayout;
+            persistBucketLayout();
+            return nextLayout;
+        }
+
+        function syncBucketMapViewport() {
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                dom.bucketCanvas.style.width = '';
+                dom.bucketCanvas.style.height = '';
+                dom.bucketCanvas.style.transform = '';
+                dom.bucketZoomReset.textContent = 'Stack';
+                dom.bucketZoomOut.disabled = true;
+                dom.bucketZoomIn.disabled = true;
+                return;
+            }
+
+            const bounds = getBucketCanvasBounds();
+            dom.bucketCanvas.style.width = `${bounds.width}px`;
+            dom.bucketCanvas.style.height = `${bounds.height}px`;
+            dom.bucketZoomOut.disabled = !bucketInsights.length;
+            dom.bucketZoomIn.disabled = !bucketInsights.length;
+            clampBucketView();
+            applyBucketCanvasTransform();
+        }
+
+        function clampBucketView() {
+            const viewportWidth = dom.bucketMapViewport.clientWidth || 760;
+            const viewportHeight = dom.bucketMapViewport.clientHeight || 520;
+            const canvasBounds = getBucketCanvasBounds();
+            const scaledWidth = canvasBounds.width * bucketView.zoom;
+            const scaledHeight = canvasBounds.height * bucketView.zoom;
+            const minPanX = Math.min(0, viewportWidth - scaledWidth);
+            const minPanY = Math.min(0, viewportHeight - scaledHeight);
+
+            bucketView.panX = clamp(bucketView.panX, minPanX, 0);
+            bucketView.panY = clamp(bucketView.panY, minPanY, 0);
+        }
+
+        function applyBucketCanvasTransform() {
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                return;
+            }
+
+            dom.bucketCanvas.style.transform = `translate3d(${bucketView.panX}px, ${bucketView.panY}px, 0) scale(${bucketView.zoom})`;
+            dom.bucketZoomReset.textContent = `${Math.round(bucketView.zoom * 100)}%`;
+        }
+
+        function updateBucketMapStatus(text) {
+            if (window.matchMedia('(max-width: 720px)').matches) {
+                dom.bucketMapStatus.textContent = 'Na mobilu je atlas zjednodušený do svislého seznamu bucketů.';
+                return;
+            }
+
+            dom.bucketMapStatus.textContent = text || `Tažením za pozadí posunete atlas, kolečkem přiblížíte. Canvas ${getBucketCanvasBounds().width} × ${getBucketCanvasBounds().height}px.`;
+        }
+
+        function renderBucketDetail() {
+            const bucket = getCurrentBucketInsight();
+
+            if (!bucket) {
+                dom.bucketDetail.innerHTML = renderBucketDetailEmptyState();
+                dom.activeBucketLabel.textContent = 'Žádný';
+                dom.activeBucketHint.textContent = 'Vyberte bucket v mapě níže.';
+                return;
+            }
+
+            dom.activeBucketLabel.textContent = bucket.name;
+            dom.activeBucketHint.textContent = `${bucket.objects.total} aktivních objektů v atlasu bucketu.`;
+            const color = getBucketColorMeta(bucket.color);
+            const usagePercent = bucket.storage_limit_bytes
+                ? Math.min((Number(bucket.billing.current_storage_bytes || 0) / Number(bucket.storage_limit_bytes || 1)) * 100, 100)
+                : 0;
+            const usageTone = usagePercent >= 90 ? 'critical' : usagePercent >= 75 ? 'warning' : 'healthy';
+
+            const filesPreview = (bucket.objects.files || []).slice(0, 4);
+            const previewMarkup = filesPreview.length
+                ? filesPreview.map((file) => `
+                    <div class="bucket-preview-item">
+                        <div>
+                            <strong>${escapeHtml(file.filename)}</strong>
+                            <span>${new Date(file.created_at).toLocaleString('cs-CZ')}</span>
+                        </div>
+                        <em>${formatBytes(file.size)}</em>
+                    </div>
+                `).join('')
+                : `
+                    <div class="bucket-preview-empty">
+                        <strong>Bucket je zatím prázdný</strong>
+                        <span>Nahrajte první soubor a zobrazí se tu poslední aktivita.</span>
+                    </div>
+                `;
+            const settingsMarkup = bucketSettingsMode
+                ? renderBucketSettingsForm(bucket, color)
+                : `
+                    <div class="bucket-profile-shell" style="--bucket-panel:${color.panel}; --bucket-accent:${color.accent};">
+                        <div class="bucket-profile-head">
+                            <div class="bucket-profile-tags">
+                                <span class="bucket-tag">${color.label}</span>
+                                <span class="bucket-tag ${bucket.is_locked ? 'danger' : 'success'}">${bucket.is_locked ? 'Locked' : 'Writable'}</span>
+                            </div>
+                            <button class="btn-ghost bucket-settings-trigger" type="button" id="bucketSettingsToggle">Nastavení</button>
+                        </div>
+                        <p>${escapeHtml(bucket.description || 'Bucket zatím nemá popis. Přidejte si účel, pravidla nebo očekávané využití.')}</p>
+                        <div class="bucket-profile-meter ${usageTone}">
+                            <div class="bucket-meter-head">
+                                <span>Bucket limit</span>
+                                <strong>${formatBytes(bucket.billing.current_storage_bytes || 0)} / ${formatBytes(bucket.storage_limit_bytes || 0)}</strong>
+                            </div>
+                            <div class="bucket-meter-track">
+                                <div class="bucket-meter-fill fill-usage" style="width:${Math.max(8, usagePercent)}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            dom.bucketDetail.innerHTML = `
+                <div class="bucket-detail-head">
+                    <div>
+                        <span class="bucket-detail-label">Aktivní bucket</span>
+                        <h5>${escapeHtml(bucket.name)}</h5>
+                        <p>Detailní billing profil, request aktivita a poslední objekty v jednom inspektoru.</p>
+                    </div>
+                    <div class="bucket-detail-badge">${bucket.requestCount} req</div>
+                </div>
+
+                ${settingsMarkup}
+
+                <div class="bucket-detail-grid">
+                    <div class="bucket-detail-card tone-storage">
+                        <span>Storage at rest</span>
+                        <strong>${formatBytes(bucket.billing.current_storage_bytes || 0)}</strong>
+                        <small>${bucket.objects.total} aktivních objektů, ${formatBytes(bucket.objects.summary.total_size_bytes || 0)} právě zobrazeno.</small>
+                    </div>
+                    <div class="bucket-detail-card tone-ingress">
+                        <span>Ingress</span>
+                        <strong>${formatBytes(bucket.billing.ingress_bytes || 0)}</strong>
+                        <small>Příchozí data do bucketu.</small>
+                    </div>
+                    <div class="bucket-detail-card tone-egress">
+                        <span>Egress</span>
+                        <strong>${formatBytes(bucket.billing.egress_bytes || 0)}</strong>
+                        <small>Odchozí přenos do internetu.</small>
+                    </div>
+                    <div class="bucket-detail-card tone-internal">
+                        <span>Internal transfer</span>
+                        <strong>${formatBytes(bucket.billing.internal_transfer_bytes || 0)}</strong>
+                        <small>Přenos uvnitř cloudu simulovaný hlavičkou.</small>
+                    </div>
+                </div>
+
+                <div class="bucket-meter-row">
+                    <div class="bucket-meter">
+                        <div class="bucket-meter-head">
+                            <span>Read requesty</span>
+                            <strong>${bucket.billing.count_read_requests || 0}</strong>
+                        </div>
+                        <div class="bucket-meter-track">
+                            <div class="bucket-meter-fill fill-read" style="width:${meterWidth(bucket.billing.count_read_requests || 0, bucket.requestCount || 1)}%"></div>
+                        </div>
+                    </div>
+                    <div class="bucket-meter">
+                        <div class="bucket-meter-head">
+                            <span>Write requesty</span>
+                            <strong>${bucket.billing.count_write_requests || 0}</strong>
+                        </div>
+                        <div class="bucket-meter-track">
+                            <div class="bucket-meter-fill fill-write" style="width:${meterWidth(bucket.billing.count_write_requests || 0, bucket.requestCount || 1)}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bucket-preview-shell">
+                    <div class="bucket-preview-head">
+                        <h6>Poslední viditelné objekty</h6>
+                        <span>${bucket.objects.total} celkem</span>
+                    </div>
+                    <div class="bucket-preview-list">
+                        ${previewMarkup}
+                    </div>
+                </div>
+            `;
+            bindBucketDetailInteractions(bucket);
+        }
+
+        function renderBucketSettingsForm(bucket, color) {
+            const isLocked = Boolean(bucket.is_locked);
+            const limitValue = bytesToUnit(bucket.storage_limit_bytes || 0, bucketLimitUnit);
+            const colorOptions = Object.entries(BUCKET_COLOR_META).map(([key, meta]) => `
+                <option value="${key}" ${bucket.color === key ? 'selected' : ''}>${meta.label}</option>
+            `).join('');
+
+            return `
+                <form class="bucket-settings-form" id="bucketSettingsForm" style="--bucket-panel:${color.panel}; --bucket-accent:${color.accent};">
+                    <div class="bucket-profile-head">
+                        <div class="bucket-profile-tags">
+                            <span class="bucket-tag">Editace bucketu</span>
+                            ${isLocked ? '<span class="bucket-tag danger">Unlock only</span>' : '<span class="bucket-tag success">Profil aktivní</span>'}
+                        </div>
+                        <div class="button-row">
+                            <button class="btn-secondary" type="submit" id="bucketSettingsSave">Uložit</button>
+                            <button class="btn-ghost bucket-settings-trigger" type="button" id="bucketSettingsCancel">Zrušit</button>
+                        </div>
+                    </div>
+                    <div class="bucket-settings-grid">
+                        <label class="bucket-settings-field">
+                            <span>Název</span>
+                            <input type="text" id="bucketSettingsName" value="${escapeHtml(bucket.name)}" ${isLocked ? 'disabled' : ''}>
+                        </label>
+                        <label class="bucket-settings-field">
+                            <span>Barva</span>
+                            <select id="bucketSettingsColor" ${isLocked ? 'disabled' : ''}>${colorOptions}</select>
+                        </label>
+                        <label class="bucket-settings-field bucket-settings-field-full">
+                            <span>Popis</span>
+                            <textarea id="bucketSettingsDescription" rows="3" ${isLocked ? 'disabled' : ''}>${escapeHtml(bucket.description || '')}</textarea>
+                        </label>
+                        <label class="bucket-settings-field">
+                            <span>Limit</span>
+                            <input type="number" id="bucketSettingsLimitValue" min="1" step="0.1" value="${limitValue}" ${isLocked ? 'disabled' : ''}>
+                        </label>
+                        <label class="bucket-settings-field">
+                            <span>Jednotka</span>
+                            <select id="bucketSettingsLimitUnit" ${isLocked ? 'disabled' : ''}>
+                                <option value="MB" ${bucketLimitUnit === 'MB' ? 'selected' : ''}>MB</option>
+                                <option value="GB" ${bucketLimitUnit === 'GB' ? 'selected' : ''}>GB</option>
+                            </select>
+                        </label>
+                        <label class="bucket-settings-toggle">
+                            <input type="checkbox" id="bucketSettingsLocked" ${bucket.is_locked ? 'checked' : ''}>
+                            <span>Zamknout bucket do read-only režimu</span>
+                        </label>
+                    </div>
+                    <small class="bucket-settings-note">
+                        ${isLocked
+                            ? 'Zamčený bucket lze v této chvíli pouze odemknout. Ostatní pole jsou schválně blokovaná.'
+                            : `Bucket limit nesmí být menší než ${formatBytes(bucket.billing.current_storage_bytes || 0)} a větší než uživatelská kvóta.`}
+                    </small>
+                </form>
+            `;
+        }
+
+        function bindBucketDetailInteractions(bucket) {
+            const toggle = document.getElementById('bucketSettingsToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    bucketSettingsMode = true;
+                    bucketLimitUnit = bucket.storage_limit_bytes >= 1024 * 1024 * 1024 ? 'GB' : 'MB';
+                    renderBucketDetail();
+                });
+            }
+
+            const cancel = document.getElementById('bucketSettingsCancel');
+            if (cancel) {
+                cancel.addEventListener('click', () => {
+                    bucketSettingsMode = false;
+                    renderBucketDetail();
+                });
+            }
+
+            const form = document.getElementById('bucketSettingsForm');
+            if (!form) {
+                return;
+            }
+
+            const unitSelect = document.getElementById('bucketSettingsLimitUnit');
+            if (unitSelect) {
+                unitSelect.addEventListener('change', (event) => {
+                    const limitInput = document.getElementById('bucketSettingsLimitValue');
+                    const currentBytes = parseLimitBytes(limitInput.value, bucketLimitUnit);
+                    bucketLimitUnit = event.target.value;
+                    limitInput.value = bytesToUnit(currentBytes || bucket.storage_limit_bytes || 0, bucketLimitUnit);
+                });
+            }
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                saveBucketSettings(bucket);
+            });
+        }
+
+        function renderBucketMapLoadingState() {
+            return `
+                <div class="bucket-map-empty loading-state">
+                    <strong>Načítám bucket atlas</strong>
+                    <span>Stahuji billing snapshoty a skládám prostorový přehled bucketů.</span>
+                </div>
+            `;
+        }
+
+        function renderBucketMapEmptyState() {
+            if (bucketInsights.length > 0 && bucketColorFilter !== 'all') {
+                return `
+                    <div class="bucket-map-empty">
+                        <strong>Filtr nenašel žádný bucket</strong>
+                        <span>Změňte barevný filtr a atlas znovu zobrazí dostupné buckety.</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="bucket-map-empty">
+                    <strong>Zatím neexistuje žádný bucket</strong>
+                    <span>Vytvořte nový bucket a atlas se okamžitě naplní datovými uzly.</span>
+                </div>
+            `;
+        }
+
+        function renderBucketDetailLoadingState() {
+            return `
+                <div class="bucket-detail-empty loading-state">
+                    <strong>Připravuji bucket inspektor</strong>
+                    <span>Čekám na billing snapshot a poslední objekty vybraného bucketu.</span>
+                </div>
+            `;
+        }
+
+        function renderBucketDetailEmptyState() {
+            return `
+                <div class="bucket-detail-empty">
+                    <strong>Vyberte bucket v mapě</strong>
+                    <span>Po kliknutí se zobrazí billing profil, poslední objekty a request aktivita.</span>
+                </div>
+            `;
+        }
+
+        function setCurrentBucket(bucketId) {
+            currentBucketId = bucketId;
+            if (currentBucketId) {
+                localStorage.setItem('bucketId', currentBucketId);
+            } else {
+                localStorage.removeItem('bucketId');
+            }
+
+            bucketSettingsMode = false;
+            renderBucketAtlas();
+            setDropZoneLoading(false);
+            loadFiles();
+        }
+
+        async function createBucket() {
+            const name = dom.bucketName.value.trim();
+            if (!name) {
+                showToast('Zadejte název bucketu.', 'error');
+                return;
+            }
+
+            setButtonLoading(dom.createBucketButton, 'Vytvářím...', true);
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('name', name);
+
+                const response = await apiFetch('/buckets/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Bucket se nepodařilo vytvořit.'), 'error');
+                    return;
+                }
+
+                const bucket = await response.json();
+                dom.bucketName.value = '';
+                currentBucketId = bucket.id;
+                localStorage.setItem('bucketId', currentBucketId);
+                bucketSettingsMode = false;
+                await refreshData();
+                showToast(`Bucket "${bucket.name}" byl vytvořen.`, 'success');
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při vytváření bucketu nastala chyba.', 'error');
+                }
+            } finally {
+                setButtonLoading(dom.createBucketButton, 'Vytvářím...', false);
+            }
+        }
+
+        async function saveBucketSettings(bucket) {
+            const saveButton = document.getElementById('bucketSettingsSave');
+            const name = document.getElementById('bucketSettingsName')?.value?.trim();
+            const description = document.getElementById('bucketSettingsDescription')?.value ?? '';
+            const color = document.getElementById('bucketSettingsColor')?.value ?? bucket.color;
+            const limitValue = document.getElementById('bucketSettingsLimitValue')?.value ?? '';
+            const isLocked = Boolean(document.getElementById('bucketSettingsLocked')?.checked);
+            const storageLimitBytes = parseLimitBytes(limitValue, bucketLimitUnit);
+
+            if (!bucket.is_locked && !name) {
+                showToast('Název bucketu nesmí být prázdný.', 'error');
+                return;
+            }
+
+            if (!bucket.is_locked && (!Number.isFinite(storageLimitBytes) || storageLimitBytes <= 0)) {
+                showToast('Zadejte platný limit bucketu.', 'error');
+                return;
+            }
+
+            setButtonLoading(saveButton, 'Ukládám...', true);
+
+            try {
+                const payload = bucket.is_locked
+                    ? { is_locked: isLocked }
+                    : {
+                        name,
+                        description,
+                        color,
+                        is_locked: isLocked,
+                        storage_limit_bytes: storageLimitBytes,
+                    };
+
+                const response = await apiFetch(`/buckets/${bucket.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Nastavení bucketu se nepodařilo uložit.'), 'error');
+                    return;
+                }
+
+                bucketSettingsMode = false;
+                await refreshData();
+                showToast(`Bucket "${bucket.name}" byl aktualizován.`, 'success');
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při ukládání bucketu nastala chyba.', 'error');
+                }
+            } finally {
+                setButtonLoading(saveButton, 'Ukládám...', false);
             }
         }
 
@@ -549,7 +1766,20 @@
             `;
 
             try {
-                const response = await apiFetch(`/files/?${buildFilesQuery()}`);
+                if (!currentBucketId) {
+                    dom.fileCount.textContent = '0';
+                    dom.totalSize.textContent = '0 B';
+                    dom.resultsLabel.textContent = 'Nejprve vytvořte bucket.';
+                    dom.filesList.innerHTML = `
+                        <div class="empty-state">
+                            <strong>Žádný bucket</strong>
+                            <span>Vytvořte bucket a pak do něj nahrajte soubor.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const response = await apiFetch(`/buckets/${currentBucketId}/objects/?${buildFilesQuery()}`);
 
                 if (!response.ok) {
                     dom.filesList.innerHTML = `
@@ -566,13 +1796,13 @@
                 dom.totalSize.textContent = formatBytes(data.summary.total_size_bytes);
                 dom.resultsLabel.textContent = data.search
                     ? `Nalezeno ${data.total} souborů pro "${escapeHtml(data.search)}".`
-                    : `Celkem ${data.total} souborů.`;
+                    : `Celkem ${data.total} souborů v aktivním bucketu.`;
 
                 if (data.total === 0) {
                     dom.filesList.innerHTML = `
                         <div class="empty-state">
-                            <strong>${data.search ? 'Žádné shody' : 'Úložiště je zatím prázdné'}</strong>
-                            <span>${data.search ? 'Zkuste upravit vyhledávání nebo změnit řazení.' : 'Nahrajte první soubor a začněte pracovat s přehledem metadat.'}</span>
+                            <strong>${data.search ? 'Žádné shody' : 'Bucket je zatím prázdný'}</strong>
+                            <span>${data.search ? 'Zkuste upravit vyhledávání nebo změnit řazení.' : 'Nahrajte první soubor a bucket atlas se začne plnit aktivitou.'}</span>
                         </div>
                     `;
                     return;
@@ -656,7 +1886,7 @@
             const filename = decodeURIComponent(encodedFilename);
 
             try {
-                const response = await apiFetch(`/files/${fileId}`);
+                const response = await apiFetch(`/objects/${fileId}`);
 
                 if (!response.ok) {
                     showToast(await parseError(response, 'Soubor se nepodařilo stáhnout.'), 'error');
@@ -672,6 +1902,7 @@
                 link.click();
                 link.remove();
                 window.URL.revokeObjectURL(url);
+                refreshBucketInsightForCurrent();
             } catch (error) {
                 if (error.message !== 'unauthorized') {
                     showToast('Při stahování nastala chyba.', 'error');
@@ -698,7 +1929,7 @@
             setButtonLoading(button, 'Mažu...', true);
 
             try {
-                const response = await apiFetch(`/files/${fileId}`, {
+                const response = await apiFetch(`/objects/${fileId}`, {
                     method: 'DELETE',
                 });
 
@@ -718,6 +1949,48 @@
             }
         }
 
+        async function refreshBucketInsightForCurrent() {
+            const activeBucket = getCurrentBucketInsight();
+            if (!activeBucket) {
+                return;
+            }
+
+            const refreshed = await loadSingleBucketInsight(activeBucket);
+            bucketInsights = bucketInsights.map(bucket => bucket.id === refreshed.id ? refreshed : bucket);
+            renderBucketAtlas();
+        }
+
+        function getCurrentBucketInsight() {
+            return bucketInsights.find(bucket => bucket.id === currentBucketId) || null;
+        }
+
+        function getBucketColorMeta(colorKey) {
+            return BUCKET_COLOR_META[colorKey] || BUCKET_COLOR_META.teal;
+        }
+
+        function meterWidth(value, total) {
+            if (!total || total <= 0) {
+                return 0;
+            }
+            return Math.max(8, Math.min((value / total) * 100, 100));
+        }
+
+        function bytesToUnit(bytes, unit) {
+            const divisor = unit === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024;
+            const value = Number(bytes || 0) / divisor;
+            return Number(value >= 10 ? value.toFixed(1) : value.toFixed(2));
+        }
+
+        function parseLimitBytes(value, unit) {
+            const numeric = Number.parseFloat(value);
+            if (!Number.isFinite(numeric) || numeric <= 0) {
+                return 0;
+            }
+
+            const multiplier = unit === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024;
+            return Math.round(numeric * multiplier);
+        }
+
         function formatBytes(bytes) {
             if (!Number.isFinite(bytes) || bytes <= 0) {
                 return '0 B';
@@ -728,6 +2001,10 @@
             const value = bytes / Math.pow(1024, index);
             const precision = value >= 100 || index === 0 ? 0 : value >= 10 ? 1 : 2;
             return `${value.toFixed(precision)} ${units[index]}`;
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
         }
 
         function escapeHtml(text) {

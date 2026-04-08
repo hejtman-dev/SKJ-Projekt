@@ -19,6 +19,7 @@ run.bat
 ### Option 2: Manual startup
 
 ```bash
+alembic upgrade head
 cd s3_service
 source ../venv/bin/activate  # or: . ../venv/Scripts/activate (Windows)
 uvicorn main:app --reload
@@ -27,6 +28,7 @@ uvicorn main:app --reload
 ### Option 3: From project root
 
 ```bash
+alembic upgrade head
 uvicorn s3_service.main:app --reload
 ```
 
@@ -47,6 +49,7 @@ uvicorn s3_service.main:app --reload
 ```
 s3_service/
 ├── main.py                 # FastAPI application
+├── alembic/                # Database migrations
 ├── database.py             # SQLAlchemy setup
 ├── models.py               # User & File ORM models
 ├── schemas.py              # Pydantic schemas
@@ -68,6 +71,9 @@ s3_service/
 ✅ Drag-and-drop file upload UI  
 ✅ Per-user storage quotas (500MB)  
 ✅ File download & deletion  
+✅ Advanced bucket billing  
+✅ Soft delete objektů  
+✅ API request billing  
 ✅ Real-time quota tracking  
 ✅ Full REST API with Swagger docs  
 ✅ SQLite database  
@@ -76,6 +82,15 @@ s3_service/
 ## 📚 More Information
 
 See `s3_service/README.md` for detailed documentation, API examples, and configuration options.
+
+## 🔄 Database Migrations
+
+Po změně SQLAlchemy modelů negenerujte databázi znovu mazáním `storage.db`. Místo toho:
+
+```bash
+alembic revision --autogenerate -m "popis zmeny"
+alembic upgrade head
+```
 
 ---
 

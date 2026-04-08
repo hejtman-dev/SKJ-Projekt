@@ -7,12 +7,12 @@ try:
     from ..schemas import TokenRequest, TokenResponse, UserCreate, UserResponse
     from ..database import get_db
     from ..auth import authenticate_user, create_access_token, hash_password
-    from ..models import User
+    from ..models import Bucket, User
 except ImportError:
     from schemas import TokenRequest, TokenResponse, UserCreate, UserResponse
     from database import get_db
     from auth import authenticate_user, create_access_token, hash_password
-    from models import User
+    from models import Bucket, User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -81,5 +81,7 @@ async def register(
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    db.add(Bucket(user_id=new_user.id, name="default"))
+    db.commit()
 
     return UserResponse.model_validate(new_user)
