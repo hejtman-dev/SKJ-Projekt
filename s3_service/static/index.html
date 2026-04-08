@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 Object Storage Service</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="page-shell">
+        <section class="hero" id="marketingShell">
+            <article class="panel hero-card">
+                <div class="eyebrow">Object storage service</div>
+                <h1>Spolehlivé úložiště pro soubory, které nezdržuje.</h1>
+                <p>
+                    Ukládejte soubory, hlídejte kvótu, filtrujte metadata a pracujte s přehledným rozhraním
+                    postaveným nad FastAPI, SQLAlchemy a Pydantic validací.
+                </p>
+                <div class="hero-grid">
+                    <div class="hero-metric">
+                        <span>Perzistence</span>
+                        <strong>SQLite + ORM</strong>
+                    </div>
+                    <div class="hero-metric">
+                        <span>Validace</span>
+                        <strong>Pydantic v2</strong>
+                    </div>
+                    <div class="hero-metric">
+                        <span>Rozhraní</span>
+                        <strong>Search, sort, quota</strong>
+                    </div>
+                </div>
+            </article>
+
+            <aside class="panel auth-card">
+                <div>
+                    <h2>Přístup do služby</h2>
+                    <p>Demo účet je připravený po startu aplikace. Registrovat lze i další uživatele.</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" type="button" onclick="switchAuthTab('login')">Přihlášení</button>
+                    <button class="auth-tab" type="button" onclick="switchAuthTab('register')">Registrace</button>
+                </div>
+
+                <div id="loginTab" class="auth-form">
+                    <div class="field">
+                        <label for="loginUsername">Uživatelské jméno</label>
+                        <input type="text" id="loginUsername" placeholder="např. admin" autocomplete="username">
+                    </div>
+                    <div class="field">
+                        <label for="loginPassword">Heslo</label>
+                        <input type="password" id="loginPassword" placeholder="Zadejte heslo" autocomplete="current-password">
+                    </div>
+                    <div class="button-row">
+                        <button class="btn-primary" type="button" onclick="login()">Přihlásit se</button>
+                    </div>
+                    <div class="micro-copy">Demo přihlášení: <strong>admin</strong> / <strong>admin123</strong></div>
+                </div>
+
+                <div id="registerTab" class="auth-form hidden">
+                    <div class="field">
+                        <label for="regUsername">Uživatelské jméno</label>
+                        <input type="text" id="regUsername" placeholder="3-32 znaků, písmena, čísla, . _ -">
+                    </div>
+                    <div class="field">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" placeholder="např. uzivatel@example.com" autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="regPassword">Heslo</label>
+                        <input type="password" id="regPassword" placeholder="Minimálně 8 znaků" autocomplete="new-password">
+                    </div>
+                    <div class="button-row">
+                        <button class="btn-primary" type="button" onclick="register()">Vytvořit účet</button>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="app-shell" id="appShell">
+            <aside class="panel sidebar">
+                <div class="brand-mark">S3</div>
+                <div>
+                    <h2>Workspace</h2>
+                    <p id="userInfo">Přihlášeni jako:</p>
+                </div>
+
+                <div class="quota-panel">
+                    <div class="quota-top">
+                        <div>
+                            <span>Využité úložiště</span>
+                            <strong id="quotaHeadline">0 B / 500 MB</strong>
+                        </div>
+                        <span id="quotaPercent">0 %</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quotaBar"></div>
+                    </div>
+                    <div class="quota-meta" id="quotaMeta">Zbývá 500 MB</div>
+                </div>
+
+                <div class="stat-stack">
+                    <div class="stat-card">
+                        <span>Počet souborů</span>
+                        <strong id="fileCount">0</strong>
+                        <small>Aktuální výsledek podle zvoleného filtru.</small>
+                    </div>
+                    <div class="stat-card">
+                        <span>Celková velikost</span>
+                        <strong id="totalSize">0 B</strong>
+                        <small>Součet velikostí aktuálně zobrazených souborů.</small>
+                    </div>
+                    <div class="stat-card">
+                        <span>Poslední synchronizace</span>
+                        <strong id="lastSync">Ještě neproběhla</strong>
+                        <small>Data se obnovují po uploadu, smazání i změně filtrů.</small>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn-secondary" type="button" onclick="refreshData()">Obnovit data</button>
+                    <button class="btn-ghost" type="button" onclick="logout()">Odhlásit se</button>
+                </div>
+            </aside>
+
+            <main class="panel workspace">
+                <div class="workspace-header">
+                    <div>
+                        <h3>Správa souborů</h3>
+                        <p>Vyhledávejte, řaďte a sledujte metadata i kvótu bez přepínání mezi různými obrazovkami.</p>
+                    </div>
+                    <div class="workspace-actions">
+                        <button class="btn-ghost" type="button" onclick="document.getElementById('fileInput').click()">Vybrat soubor</button>
+                    </div>
+                </div>
+
+                <section class="drop-zone" id="dropZone" tabindex="0">
+                    <div class="drop-grid">
+                        <div>
+                            <h4 id="dropTitle">Nahrajte soubor jedním tahem</h4>
+                            <p id="dropText">Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.</p>
+                            <small id="dropHint">Maximum 100 MB na soubor, 500 MB na uživatele.</small>
+                        </div>
+                        <div class="button-row">
+                            <button class="btn-primary" type="button">Nahrát soubor</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput">
+                </section>
+
+                <section class="toolbar">
+                    <div class="field">
+                        <label for="searchInput">Vyhledat podle názvu</label>
+                        <input type="search" id="searchInput" placeholder="např. report, faktura, image" autocomplete="off">
+                    </div>
+                    <div class="field">
+                        <label for="sortBy">Řadit podle</label>
+                        <select id="sortBy">
+                            <option value="created_at">Data nahrání</option>
+                            <option value="filename">Názvu</option>
+                            <option value="size">Velikosti</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="sortOrder">Směr</label>
+                        <select id="sortOrder">
+                            <option value="desc">Sestupně</option>
+                            <option value="asc">Vzestupně</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="table-shell">
+                    <div class="table-header">
+                        <div>
+                            <h4>Seznam souborů</h4>
+                            <p id="resultsLabel">Načítám data...</p>
+                        </div>
+                        <div class="status-line" id="tableStatus">Připraveno</div>
+                    </div>
+                    <div id="filesList"></div>
+                </section>
+            </main>
+        </section>
+    </div>
+
+    <div class="toast-stack" id="toastStack"></div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const initialFilters = { search: '', sortBy: 'created_at', sortOrder: 'desc' };
+        let token = localStorage.getItem('token');
+        let currentUsername = localStorage.getItem('username');
+        let searchDebounce;
+        let currentFilters = { ...initialFilters };
+
+        const dom = {
+            marketingShell: document.getElementById('marketingShell'),
+            appShell: document.getElementById('appShell'),
+            loginTab: document.getElementById('loginTab'),
+            registerTab: document.getElementById('registerTab'),
+            authTabs: document.querySelectorAll('.auth-tab'),
+            dropZone: document.getElementById('dropZone'),
+            fileInput: document.getElementById('fileInput'),
+            filesList: document.getElementById('filesList'),
+            userInfo: document.getElementById('userInfo'),
+            quotaHeadline: document.getElementById('quotaHeadline'),
+            quotaPercent: document.getElementById('quotaPercent'),
+            quotaMeta: document.getElementById('quotaMeta'),
+            quotaBar: document.getElementById('quotaBar'),
+            fileCount: document.getElementById('fileCount'),
+            totalSize: document.getElementById('totalSize'),
+            lastSync: document.getElementById('lastSync'),
+            resultsLabel: document.getElementById('resultsLabel'),
+            tableStatus: document.getElementById('tableStatus'),
+            searchInput: document.getElementById('searchInput'),
+            sortBy: document.getElementById('sortBy'),
+            sortOrder: document.getElementById('sortOrder'),
+            dropTitle: document.getElementById('dropTitle'),
+            dropText: document.getElementById('dropText'),
+            dropHint: document.getElementById('dropHint'),
+            toastStack: document.getElementById('toastStack'),
+        };
+
+        bindUi();
+
+        if (token) {
+            showApp();
+            refreshData();
+        }
+
+        function bindUi() {
+            dom.searchInput.addEventListener('input', (event) => {
+                currentFilters.search = event.target.value;
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => loadFiles(), 250);
+            });
+
+            dom.sortBy.addEventListener('change', (event) => {
+                currentFilters.sortBy = event.target.value;
+                loadFiles();
+            });
+
+            dom.sortOrder.addEventListener('change', (event) => {
+                currentFilters.sortOrder = event.target.value;
+                loadFiles();
+            });
+
+            dom.fileInput.addEventListener('change', (event) => {
+                handleFiles(event.target.files);
+                event.target.value = '';
+            });
+
+            dom.dropZone.addEventListener('click', (event) => {
+                if (event.target.tagName.toLowerCase() !== 'button') {
+                    dom.fileInput.click();
+                }
+            });
+
+            dom.dropZone.querySelector('button').addEventListener('click', () => dom.fileInput.click());
+
+            dom.dropZone.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                dom.dropZone.classList.add('dragover');
+            });
+
+            dom.dropZone.addEventListener('dragleave', () => {
+                dom.dropZone.classList.remove('dragover');
+            });
+
+            dom.dropZone.addEventListener('drop', (event) => {
+                event.preventDefault();
+                dom.dropZone.classList.remove('dragover');
+                handleFiles(event.dataTransfer.files);
+            });
+
+            document.addEventListener('keypress', (event) => {
+                if (event.key !== 'Enter' || token) {
+                    return;
+                }
+
+                if (dom.registerTab.classList.contains('hidden')) {
+                    login();
+                } else {
+                    register();
+                }
+            });
+        }
+
+        function switchAuthTab(tab) {
+            const isLogin = tab === 'login';
+            dom.loginTab.classList.toggle('hidden', !isLogin);
+            dom.registerTab.classList.toggle('hidden', isLogin);
+            dom.authTabs[0].classList.toggle('active', isLogin);
+            dom.authTabs[1].classList.toggle('active', !isLogin);
+        }
+
+        function setButtonLoading(button, loadingText, isLoading) {
+            if (!button.dataset.originalText) {
+                button.dataset.originalText = button.textContent;
+            }
+
+            button.disabled = isLoading;
+            button.textContent = isLoading ? loadingText : button.dataset.originalText;
+        }
+
+        function setDropZoneLoading(isLoading, text = 'Nahrávám soubor...') {
+            dom.dropZone.classList.toggle('loading', isLoading);
+            dom.dropTitle.textContent = isLoading ? text : 'Nahrajte soubor jedním tahem';
+            dom.dropText.textContent = isLoading
+                ? 'Probíhá přenos souboru a zápis metadat do databáze.'
+                : 'Přetáhněte soubor do zóny nebo otevřete výběr souborů. Limity se kontrolují na klientu i serveru.';
+            dom.dropHint.textContent = isLoading
+                ? 'Počkejte prosím na dokončení nahrávání.'
+                : 'Maximum 100 MB na soubor, 500 MB na uživatele.';
+        }
+
+        function resetUiState() {
+            dom.filesList.innerHTML = '';
+            dom.quotaHeadline.textContent = '0 B / 500 MB';
+            dom.quotaPercent.textContent = '0 %';
+            dom.quotaMeta.textContent = 'Zbývá 500 MB';
+            dom.quotaBar.style.width = '0%';
+            dom.fileCount.textContent = '0';
+            dom.totalSize.textContent = '0 B';
+            dom.resultsLabel.textContent = 'Zatím bez načtených dat';
+            dom.tableStatus.textContent = 'Připraveno';
+            dom.lastSync.textContent = 'Ještě neproběhla';
+            dom.searchInput.value = '';
+            dom.sortBy.value = initialFilters.sortBy;
+            dom.sortOrder.value = initialFilters.sortOrder;
+            currentFilters = { ...initialFilters };
+            setDropZoneLoading(false);
+        }
+
+        function showApp() {
+            dom.marketingShell.classList.add('hidden');
+            dom.appShell.style.display = 'grid';
+            dom.userInfo.textContent = `Přihlášeni jako: ${currentUsername}`;
+        }
+
+        function showMarketing() {
+            dom.marketingShell.classList.remove('hidden');
+            dom.appShell.style.display = 'none';
+        }
+
+        function logout(showMessage = true) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            token = null;
+            currentUsername = null;
+            resetUiState();
+            showMarketing();
+
+            if (showMessage) {
+                showToast('Odhlášení proběhlo úspěšně.', 'info');
+            }
+        }
+
+        function handleUnauthorized() {
+            logout(false);
+            showToast('Relace vypršela. Přihlaste se znovu.', 'error');
+        }
+
+        async function parseError(response, fallbackMessage) {
+            try {
+                const data = await response.json();
+                if (Array.isArray(data.detail)) {
+                    return data.detail.map(item => item.msg).join(', ');
+                }
+                return data.detail || fallbackMessage;
+            } catch (error) {
+                return fallbackMessage;
+            }
+        }
+
+        async function apiFetch(path, options = {}) {
+            const headers = new Headers(options.headers || {});
+
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+
+            const response = await fetch(`${API_URL}${path}`, {
+                ...options,
+                headers,
+            });
+
+            if (response.status === 401 && token) {
+                handleUnauthorized();
+                throw new Error('unauthorized');
+            }
+
+            return response;
+        }
+
+        async function register() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const button = document.querySelector('#registerTab button');
+
+            setButtonLoading(button, 'Vytvářím účet...', true);
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('email', email);
+                formData.append('password', password);
+
+                const response = await apiFetch('/auth/register', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Registrace se nepodařila.'), 'error');
+                    return;
+                }
+
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                switchAuthTab('login');
+                showToast('Účet byl vytvořen. Nyní se přihlaste.', 'success');
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při registraci nastala chyba.', 'error');
+                }
+            } finally {
+                setButtonLoading(button, 'Vytvářím účet...', false);
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const button = document.querySelector('#loginTab button');
+
+            setButtonLoading(button, 'Přihlašuji...', true);
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await apiFetch('/auth/token', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Přihlášení selhalo.'), 'error');
+                    return;
+                }
+
+                const data = await response.json();
+                token = data.access_token;
+                currentUsername = username;
+                localStorage.setItem('token', token);
+                localStorage.setItem('username', username);
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                showApp();
+                await refreshData();
+                showToast('Přihlášení bylo úspěšné.', 'success');
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při přihlášení nastala chyba.', 'error');
+                }
+            } finally {
+                setButtonLoading(button, 'Přihlašuji...', false);
+            }
+        }
+
+        async function refreshData() {
+            dom.tableStatus.textContent = 'Synchronizuji data...';
+            await Promise.all([loadFiles(), loadQuota()]);
+            dom.lastSync.textContent = new Date().toLocaleTimeString('cs-CZ', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            });
+            dom.tableStatus.textContent = 'Data jsou aktuální';
+        }
+
+        async function handleFiles(files) {
+            if (!files || files.length === 0) {
+                return;
+            }
+
+            setDropZoneLoading(true, files.length > 1 ? 'Nahrávám více souborů...' : `Nahrávám ${files[0].name}...`);
+
+            try {
+                for (const file of files) {
+                    await uploadFile(file);
+                }
+            } finally {
+                setDropZoneLoading(false);
+            }
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await apiFetch('/files/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Soubor se nepodařilo nahrát.'), 'error');
+                    return;
+                }
+
+                showToast(`Soubor ${file.name} byl nahrán.`, 'success');
+                await refreshData();
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při nahrávání nastala chyba.', 'error');
+                }
+            }
+        }
+
+        function buildFilesQuery() {
+            const params = new URLSearchParams();
+            const trimmedSearch = currentFilters.search.trim();
+
+            if (trimmedSearch) {
+                params.set('search', trimmedSearch);
+            }
+
+            params.set('sort_by', currentFilters.sortBy);
+            params.set('sort_order', currentFilters.sortOrder);
+            params.set('limit', '100');
+
+            return params.toString();
+        }
+
+        async function loadFiles() {
+            dom.filesList.innerHTML = `
+                <div class="empty-state">
+                    <strong>Načítám soubory</strong>
+                    <span>Probíhá synchronizace seznamu a metadat.</span>
+                </div>
+            `;
+
+            try {
+                const response = await apiFetch(`/files/?${buildFilesQuery()}`);
+
+                if (!response.ok) {
+                    dom.filesList.innerHTML = `
+                        <div class="empty-state">
+                            <strong>Seznam souborů není dostupný</strong>
+                            <span>Zkuste data obnovit znovu.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const data = await response.json();
+                dom.fileCount.textContent = String(data.total);
+                dom.totalSize.textContent = formatBytes(data.summary.total_size_bytes);
+                dom.resultsLabel.textContent = data.search
+                    ? `Nalezeno ${data.total} souborů pro "${escapeHtml(data.search)}".`
+                    : `Celkem ${data.total} souborů.`;
+
+                if (data.total === 0) {
+                    dom.filesList.innerHTML = `
+                        <div class="empty-state">
+                            <strong>${data.search ? 'Žádné shody' : 'Úložiště je zatím prázdné'}</strong>
+                            <span>${data.search ? 'Zkuste upravit vyhledávání nebo změnit řazení.' : 'Nahrajte první soubor a začněte pracovat s přehledem metadat.'}</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const rows = data.files.map(file => {
+                    const typeLabel = file.content_type || 'Neznámý typ';
+                    return `
+                        <tr>
+                            <td data-label="Soubor">
+                                <div class="file-name">${escapeHtml(file.filename)}</div>
+                                <div class="file-meta">ID: <code>${escapeHtml(file.id)}</code></div>
+                            </td>
+                            <td data-label="Metadata">
+                                <div class="file-badge">${escapeHtml(typeLabel)}</div>
+                                <div class="file-meta" style="margin-top: 8px;">Velikost: ${formatBytes(file.size)}</div>
+                            </td>
+                            <td data-label="Nahráno">
+                                <div class="file-meta">${new Date(file.created_at).toLocaleString('cs-CZ')}</div>
+                            </td>
+                            <td data-label="Akce">
+                                <div class="actions">
+                                    <button class="btn-ghost" type="button" onclick="downloadFile('${file.id}', '${encodeURIComponent(file.filename)}')">Stáhnout</button>
+                                    <button class="btn-ghost" type="button" onclick="copyFileId('${file.id}')">Kopírovat ID</button>
+                                    <button class="btn-danger" type="button" onclick="deleteFile('${file.id}', '${encodeURIComponent(file.filename)}', this)">Smazat</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                dom.filesList.innerHTML = `
+                    <table class="file-table">
+                        <thead>
+                            <tr>
+                                <th>Soubor</th>
+                                <th>Metadata</th>
+                                <th>Nahráno</th>
+                                <th>Akce</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    dom.filesList.innerHTML = `
+                        <div class="empty-state">
+                            <strong>Načtení selhalo</strong>
+                            <span>Server nevrátil použitelnou odpověď.</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function loadQuota() {
+            try {
+                const response = await apiFetch('/files/quota/info');
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                dom.quotaHeadline.textContent = `${formatBytes(data.used_bytes)} / ${formatBytes(data.limit_bytes)}`;
+                dom.quotaPercent.textContent = `${Math.round(data.usage_percent)} %`;
+                dom.quotaMeta.textContent = `Zbývá ${formatBytes(data.remaining_bytes)} z celkové kvóty.`;
+                dom.quotaBar.style.width = `${Math.min(data.usage_percent, 100)}%`;
+                dom.quotaBar.style.background = data.usage_percent >= 85
+                    ? 'linear-gradient(90deg, #c2410c 0%, #ea580c 100%)'
+                    : 'linear-gradient(90deg, #0f766e 0%, #14b8a6 100%)';
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    console.error('Error loading quota:', error);
+                }
+            }
+        }
+
+        async function downloadFile(fileId, encodedFilename) {
+            const filename = decodeURIComponent(encodedFilename);
+
+            try {
+                const response = await apiFetch(`/files/${fileId}`);
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Soubor se nepodařilo stáhnout.'), 'error');
+                    return;
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při stahování nastala chyba.', 'error');
+                }
+            }
+        }
+
+        async function copyFileId(fileId) {
+            try {
+                await navigator.clipboard.writeText(fileId);
+                showToast('ID souboru bylo zkopírováno.', 'info');
+            } catch (error) {
+                showToast('Kopírování se nepodařilo.', 'error');
+            }
+        }
+
+        async function deleteFile(fileId, encodedFilename, button) {
+            const filename = decodeURIComponent(encodedFilename);
+
+            if (!confirm(`Opravdu chcete smazat soubor "${filename}"?`)) {
+                return;
+            }
+
+            setButtonLoading(button, 'Mažu...', true);
+
+            try {
+                const response = await apiFetch(`/files/${fileId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    showToast(await parseError(response, 'Soubor se nepodařilo smazat.'), 'error');
+                    return;
+                }
+
+                showToast(`Soubor "${filename}" byl smazán.`, 'success');
+                await refreshData();
+            } catch (error) {
+                if (error.message !== 'unauthorized') {
+                    showToast('Při mazání nastala chyba.', 'error');
+                }
+            } finally {
+                setButtonLoading(button, 'Mažu...', false);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (!Number.isFinite(bytes) || bytes <= 0) {
+                return '0 B';
+            }
+
+            const units = ['B', 'KB', 'MB', 'GB'];
+            const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            const value = bytes / Math.pow(1024, index);
+            const precision = value >= 100 || index === 0 ? 0 : value >= 10 ? 1 : 2;
+            return `${value.toFixed(precision)} ${units[index]}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            dom.toastStack.appendChild(toast);
+            setTimeout(() => toast.remove(), 3200);
+        }
+    </script>
+</body>
+</html>
